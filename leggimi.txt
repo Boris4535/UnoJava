@@ -1,0 +1,17 @@
+Ho preso un'esempio da github per javafx, aggiunto il launcher così si bypassa il dover fare mvn compile run etc. (e così
+funziona diretto dall'IDE).
+
+per testare e provare funzionalità consiglio che ognuno fa i suoi branch, in tal modo che non sporchiamo o rompiamo il codice.
+Segnatevi su codeberg ASAP, così x lavorare a little easier.
+
+Propongo sempre il concetto che tra l'interfaccia grafica ed il modello di gioco vero e proprio vi sia una separazione,
+sia per ragioni di facilità nel lavorare, ma anche debugging e tutte cose del genere.
+(MODEL-VIEW-CONTROLLER O MVC).
+
+in ogni caso, le 3 parti sarebbero modello e logica di gioco, GUI e poi
+bot, statistiche, simulazioni tra bot etc.
+
+We lash the details out as it goes.
+Inoltre, creeremo un file dove alla fine di ogni cambiamento scriviamo per monitorare i cambiamenti ed aiutarci nella
+documentazione.
+More details will be added later
