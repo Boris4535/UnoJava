@@ -1,0 +1,119 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+skinparam shadowing false
+
+package "Modello Globale" {
+
+    enum Color {
+    ' le carte wild come il <<pesca 4>>
+        RED, YELLOW, GREEN, BLUE, WILD
+    }
+
+    enum CardType {
+        NUMBER_0_TO_9, SKIP, REVERSE, DRAW_TWO, WILD, WILD_DRAW_FOUR
+    }
+
+    class Card {
+        - color: Color
+        - type: CardType
+        - value: int
+        + getColor(): Color
+        + getType(): CardType
+        + isPlayableOn(topCard: Card): boolean
+    }
+    'l'idea è che ad ogni stato dello gioco, si controlla che le carte possedute
+    ' siano giocabili su quella in cima dello stack, mi sembra di aver capito che il gamedev funziona frame per frame lol
+
+    class GameState {
+        - drawPile: Stack<Card>
+        - discardPile: Stack<Card>
+        - players: List<Player>
+        - currentPlayerIndex: int
+        - currentColor: Color
+        - clockwisePhase: boolean
+        + drawCard(): Card
+        + reshuffleDiscardIntoDraw()
+        + getTopDiscard(): Card
+    }
+
+    abstract class Player {
+        # name: String
+        # hand: List<Card>
+        + receiveCard(c: Card)
+        + removeCard(c: Card)
+        + getHandSize(): int
+        + hasUno(): boolean
+
+        'Sarebbe carino implementare che quando si ha uno, bisogna digitare "UNO" oppure "1", tipo ghost keyboard
+        '+ declaredUno(): boolean (?)
+        {abstract} + playTurn(state: GameState): Card
+    }
+
+    class HumanPlayer {
+        + playTurn(state: GameState): Card
+    }
+
+    interface BotStrategy{
+        + decideMove(state: GameState, hand: List<Card>): Card
+    }
+
+    class BotPlayer {
+        - strategy: BotStrategy
+        + playTurn(state: GameState): Card
+    }
+
+
+package "Controller, flow state del gioco" {
+    class GameEngine {
+        - state: GameState
+        - PlayerView: GameView
+        + startGame()
+        + nextTurn()
+        + processPlay(player: Player, card: Card)
+        + handlePenalty(target: Player, amount: int)
+        + checkChallenge(challenger: Player, victim: Player)
+    }
+}
+
+package "giocatore umano interface(GUI)" {
+    interface GameView {
+        + updateBoard(state: GameState)
+        + showMessage(msg: String)
+        + promptHumanAction(validMoves: List<Card>)
+    }
+' idealmente, per la versione multiplayer locale, avremmo un bottone che offusca le carte
+' per alcuni secondi, permettendo di cambiare posto
+'per la partita BOT only, sarebbe carino ( e questo lo farò io) una visuale birds eye del gioco per vedere tutti i bot
+
+    class FXController {
+        - engine: GameEngine
+        + onCardClicked(c: Card)
+        + onDeckClicked()
+        + onUnoButtonClicked()
+    }
+}
+
+' Relazioni
+
+Card "1" *-- "1" Color : ha >
+Card "1" *-- "1" CardType : ha >
+
+GameState "1" *-- "*" Card : mazzi >
+GameState "1" *-- "*" Player : giocatori >
+
+Player "1" o-- "*" Card : mano >
+HumanPlayer -up-|> Player : estende
+BotPlayer -up-|> Player : estende
+
+BotPlayer o-- BotStrategy : utilizza >
+
+' Relazioni Controller
+GameEngine "1" *-- "1" GameState : gestisce >
+GameEngine "1" o-- "1" GameView : aggiorna >
+
+' Relazioni GUI
+FXController .up.|> GameView : implementa
+FXController "1" o-- "1" GameEngine : usa >
+
+@enduml

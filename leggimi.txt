@@ -14,4 +14,7 @@ bot, statistiche, simulazioni tra bot etc.
 We lash the details out as it goes.
 Inoltre, creeremo un file dove alla fine di ogni cambiamento scriviamo per monitorare i cambiamenti ed aiutarci nella
 documentazione.
-More details will be added later
+More details will be added later.
+
+
+PLUGIN PER VISUALIZZARE UML SU INTELLIJ: plantuml4idea
