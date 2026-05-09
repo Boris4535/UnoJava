@@ -3,18 +3,18 @@ package org.openjfx;
 import java.util.List;
 
 public abstract class Player {
-    String name;
-    List<Card> hand;
-    void receiveCard(Card c){
-    hand.add(c);
-    }
-    void removeCard(Card c){
-    hand.remove(c);
-    }
-    int getHandSize(){
-    return hand.size();
-    }
-    boolean hasUno(){
-    return hand.size() == 1;
+    public String name;
+    public List<Card> hand;
+
+    public void receiveCard(Card c){hand.add(c);}
+    public void removeCard(Card c){hand.remove(c);}
+    public int getHandSize(){ return hand.size();}
+    public boolean hasUno(){ return hand.size() == 1;}
+
+}
+
+class HumanPlayer extends Player{
+    public HumanPlayer(String name){
+    this.name = name;
     }
 }

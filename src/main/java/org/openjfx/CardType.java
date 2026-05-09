@@ -1,10 +1,10 @@
 package org.openjfx;
 
 public enum CardType {
-    NUMBER,
+    NUMBERS,
     SKIP,
     REVERSE,
     DRAW_TWO,
-    WILD,
+    WILD_JOLLY,
     WILD_DRAW
 }

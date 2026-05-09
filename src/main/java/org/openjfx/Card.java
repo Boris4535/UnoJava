@@ -5,15 +5,25 @@ public class Card {
     CardType type;
     int value;
 
-    Color getcolor(){
-        return this.color;
+    public Card(Color color, CardType type, int value){
+        this.color = color;
+        this.type = type;
+        this.value = value;
+    }
+    public Card(Color color, CardType type){
+        this.color = color;
+        this.type = type;
     }
 
-    CardType getType(){
-        return this.type;
-    }
+    Color getcolor(){return this.color;}
+
+    CardType getType(){return this.type;}
 
     boolean isPlayableOn(Card topCard){
-        return this.color == topCard.color || this.color == Color.WILD || this.value == topCard.value || this.type == topCard.type;
+        return this.color == topCard.color ||
+                this.color == Color.WILD ||
+                this.value == topCard.value ||
+                this.type == topCard.type;
     }
+
 }
