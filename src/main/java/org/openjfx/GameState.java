@@ -29,35 +29,36 @@ public class GameState {
 
     private void initDrawPile(){
         Iterator<Color> colors = Arrays.asList(Color.values()).iterator();
-        Iterator<CardType> types = Arrays.asList(CardType.values()).iterator();
 
         while(colors.hasNext()){
             Color currentColor = colors.next();
-            if(colors.next() != WILD){
+            if(currentColor != WILD){
+                //Iteratore per ogni colore, così da non saltarli
+                Iterator<CardType> types = Arrays.asList(CardType.values()).iterator();
                 while(types.hasNext()) {
                     CardType currentType = types.next();
-                    if (types.next() == NUMBERS) {
+                        if (currentType == NUMBERS) {
                         drawPile.add(new Card(currentColor, NUMBERS, 0));
                         for (int i = 1; i < 10; i++) {
                             drawPile.add(new Card(currentColor, NUMBERS, i));
                             drawPile.add(new Card(currentColor, NUMBERS, i));
                         }
                     }
-                    else if(types.next() != WILD_JOLLY|| types.next() != WILD_DRAW){
+                    else if(types.next() != WILD_JOLLY && types.next() != WILD_DRAW){
                         drawPile.add(new Card(currentColor, currentType));
                         drawPile.add(new Card(currentColor, currentType));
                     }
                 }
             }
             else{
-                for(int i = 0; i < 5; i++){
+                for(int i = 0; i < 4; i++){
                     drawPile.add(new Card(currentColor, WILD_JOLLY));
                     drawPile.add(new Card(currentColor, WILD_DRAW));
                 }
             }
         }
 
-        drawPile = shuffle(drawPile);
+        Collections.shuffle(drawPile);
     }
 
     public void reshuffleDiscardIntoDraw(){ drawPile = shuffle(discardPile);}
