@@ -15,7 +15,7 @@ public abstract class Player {
     public int getHandSize(){ return hand.size();}
     public boolean hasUno(){ return hand.size() == 1;}
 
-    private void initiateHand(Stack<Card> cards){
+    public void initiateHand(Stack<Card> cards){
         hand.addAll(cards);
     }
 
