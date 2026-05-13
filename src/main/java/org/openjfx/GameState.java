@@ -61,5 +61,13 @@ public class GameState {
         Collections.shuffle(drawPile);
     }
 
+    public Stack<Card> getTopCards(int cards){
+        Stack<Card> temp = new Stack<Card>();
+        for(int i = 0; i < cards;i++){
+        temp.add(drawPile.pop());
+        }
+        return temp;
+    }
+
     public void reshuffleDiscardIntoDraw(){ drawPile = shuffle(discardPile);}
 }
