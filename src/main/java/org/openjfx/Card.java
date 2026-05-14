@@ -15,9 +15,9 @@ public class Card {
         this.type = type;
     }
 
-    Color getcolor(){return this.color;}
+    public Color getcolor(){return this.color;}
 
-    CardType getType(){return this.type;}
+    public CardType getType(){return this.type;}
 
     boolean isPlayableOn(Card topCard){
         return this.color == topCard.color ||
