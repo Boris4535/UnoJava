@@ -3,7 +3,7 @@ package org.openjfx;
 public class Card {
     Color color;
     CardType type;
-    int value;
+    int value = -1;
 
     public Card(Color color, CardType type, int value){
         this.color = color;
@@ -16,7 +16,7 @@ public class Card {
     }
 
     public Color getcolor(){return this.color;}
-
+    public int getValue(){return this.value;}
     public CardType getType(){return this.type;}
 
     boolean isPlayableOn(Card topCard){
