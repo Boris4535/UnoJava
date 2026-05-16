@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Stack;
 
 public abstract class Player {
-    public String name;
-    public List<Card> hand;
-    public HashMap<CardType, Integer> points;
+    String name;
+    private List<Card> hand;
+    private HashMap<CardType, Integer> points;
 
     public void receiveCard(Card c){hand.add(c);}
     public void removeCard(Card c){hand.remove(c);}
