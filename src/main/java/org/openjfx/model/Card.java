@@ -1,4 +1,4 @@
-package org.openjfx;
+package org.openjfx.model;
 
 public class Card {
     private Color color;

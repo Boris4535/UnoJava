@@ -1,4 +1,4 @@
-package org.openjfx;
+package org.openjfx.model;
 
 public enum CardType {
     NUMBERS,

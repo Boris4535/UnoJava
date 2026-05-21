@@ -1,4 +1,4 @@
-package org.openjfx;
+package org.openjfx.model;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Stack;
 
 public abstract class Player {
-    String name;
-    private List<Card> hand;
+    public String name;
+    private List<Card> hand = new LinkedList<>();
     private HashMap<CardType, Integer> points;
 
     public void receiveCard(Card c){hand.add(c);}
@@ -24,8 +24,4 @@ public abstract class Player {
 
 }
 
-class HumanPlayer extends Player{
-    public HumanPlayer(String name){
-    this.name = name;
-    }
-}
+

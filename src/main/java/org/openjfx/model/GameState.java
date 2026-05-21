@@ -1,13 +1,10 @@
-package org.openjfx;
+package org.openjfx.model;
 
 
 import java.util.*;
 
-import org.openjfx.Color;
-import org.openjfx.CardType;
-
-import static org.openjfx.Color.*;
-import static org.openjfx.CardType.*;
+import static org.openjfx.model.Color.*;
+import static org.openjfx.model.CardType.*;
 
 
 public class GameState {
@@ -18,7 +15,11 @@ public class GameState {
     public Color currentColor;
     public boolean clockwisePhase = true;
 
-    private Stack<Card> shuffle(Stack<Card> cardStack){
+    public GameState() {
+        initDrawPile();
+    }
+
+    public Stack<Card> shuffle(Stack<Card> cardStack){
         List<Card> temp = new ArrayList<>();
         temp.addAll(cardStack);
         Collections.shuffle(temp);
@@ -27,7 +28,7 @@ public class GameState {
         return temp2;
     }
 
-    private void initDrawPile(){
+    public void initDrawPile(){
         Iterator<Color> colors = Arrays.asList(Color.values()).iterator();
 
         while(colors.hasNext()){
@@ -44,7 +45,8 @@ public class GameState {
                             drawPile.add(new Card(currentColor, NUMBERS, i));
                         }
                     }
-                    else if(types.next() != WILD_JOLLY && types.next() != WILD_DRAW){
+                    else if(currentType != WILD_JOLLY && currentType != WILD_DRAW){
+                        //Piccolo fix qui, simile a quello dell'iteratore precedente
                         drawPile.add(new Card(currentColor, currentType));
                         drawPile.add(new Card(currentColor, currentType));
                     }
