@@ -22,6 +22,13 @@ public abstract class Player {
         hand.addAll(cards);
     }
 
+    public int getIntPoints() {
+        int intPoints = 0;
+        for(Integer i : points.values()){
+            intPoints += i;
+        }
+        return intPoints;
+    }
 }
 
 

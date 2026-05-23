@@ -5,6 +5,6 @@ public enum CardType {
     SKIP,
     REVERSE,
     DRAW_TWO,
-    WILD_JOLLY,
-    WILD_DRAW
+    WILD_JOLLY, // Cambia colore
+    WILD_DRAW // Challenge
 }

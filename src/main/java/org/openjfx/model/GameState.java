@@ -19,6 +19,40 @@ public class GameState {
         initDrawPile();
     }
 
+    /** returns currentPlayer
+     */
+    public Player getCurrentPlayer(){
+        return players.get(currentPlayerIndex);
+    }
+
+    public void invertClock(){
+        clockwisePhase = false;
+    }
+
+    /** nextTurn() moves to the next player in the list, and takes into account the clockwisePhase
+     */
+    public void nextTurn(){
+        int numPlayers = players.size();
+        if(clockwisePhase)
+            this.currentPlayerIndex = (currentPlayerIndex + 1) % numPlayers;
+        else
+            this.currentPlayerIndex = (currentPlayerIndex - 1 + numPlayers) % numPlayers;
+    }
+
+    /** getNextPlayer() returns next player in the list WITHOUT moving the list.
+     * To actually move the list, check nextTurn()
+     * @return next player
+     */
+    public Player getNextPlayer(){
+        int numPlayers = players.size();
+        int indexNextPlayer = 0;
+        if(clockwisePhase)
+            indexNextPlayer = (currentPlayerIndex + 1) % numPlayers;
+        else
+            indexNextPlayer = (currentPlayerIndex - 1 + numPlayers) % numPlayers;
+        return players.get(indexNextPlayer);
+    }
+
     public Stack<Card> shuffle(Stack<Card> cardStack){
         List<Card> temp = new ArrayList<>();
         temp.addAll(cardStack);
