@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" spacing="20.0" stylesheets="@Styles.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.openjfx.controller.SetupController">
+    <children>
+        <Label text="Configurazione partita" />
+        <ScrollPane fitToWidth="true" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+            <content>
+                <VBox spacing="20.0">
+                    <children>
+                        <GridPane prefHeight="319.0" prefWidth="558.0">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints maxHeight="70.0" minHeight="5.0" prefHeight="39.0" vgrow="SOMETIMES" />
+                                <RowConstraints maxHeight="50.0" minHeight="0.0" prefHeight="41.0" vgrow="SOMETIMES" />
+                            </rowConstraints>
+                            <children>
+                                <Label text="Modalità di gioco" />
+                                <ToggleButton fx:id="togglePunti" mnemonicParsing="false" text="Partita Singola" GridPane.columnIndex="1" />
+                                <Label text="Soglia vittoria" GridPane.rowIndex="1" />
+                                <TextField fx:id="txtSoglia" promptText="500" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                            </children>
+                        </GridPane>
+
+                        <Label text="Regole alternative" />
+                        <VBox spacing="8.0">
+                            <children>
+                                <CheckBox fx:id="chkStacking" mnemonicParsing="false" text="Stacking (+2 / +4)" />
+                                <CheckBox fx:id="chkNumberRush" mnemonicParsing="false" text="Number Rush" />
+                                <CheckBox fx:id="chkSevenZero" mnemonicParsing="false" text="Seven-Zero Rule" />
+                            </children>
+                        </VBox>
+
+                        <Label text="Giocatori" />
+                        <VBox fx:id="playersContainer" spacing="8.0" />
+
+                    </children>
+                    <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                    </padding>
+                </VBox>
+            </content>
+        </ScrollPane>
+        <HBox alignment="CENTER_RIGHT" spacing="15.0">
+            <children>
+                <Button mnemonicParsing="false" onAction="#startGame" text="INIZIA PARTITA" />
+                <Button mnemonicParsing="false" onAction="#goBack" text="INDIETRO" />
+            </children>
+        </HBox>
+    </children>
+</VBox>

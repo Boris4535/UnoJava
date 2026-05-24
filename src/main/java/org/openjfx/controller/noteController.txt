@@ -1,0 +1,7 @@
+NOTA: ANDRÀ NEI DOCS MA SEGNO QUI.
+
+ beginGame indica l'apertura del menù delle modalità, startGame si avvia per la partita vera e propria dopo il setup.
+ un nome migliore per beginGame PUÒ essere una buona cosa da fare.
+
+
+ Per lavorare e testare senza aspettare il resto del codice, scrivo pseudofunzioni che si sostituiranno a quelle vere.

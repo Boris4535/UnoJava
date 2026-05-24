@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            prefHeight="400.0" prefWidth="600.0"
+            xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.openjfx.controller.TavoloController">
+   <top>
+      <Label text="avatar" BorderPane.alignment="CENTER" />
+   </top>
+   <left>
+      <Label text="avatar" BorderPane.alignment="CENTER" />
+   </left>
+   <right>
+      <Label text="avatar" BorderPane.alignment="CENTER" />
+   </right>
+   <bottom>
+      <VBox spacing="6.0" BorderPane.alignment="CENTER">
+         <children>
+
+            <Label fx:id="lblMessage"       text="" style="-fx-font-style: italic;" />
+            <Label fx:id="lblCurrentPlayer" text="" style="-fx-font-weight: bold;" />
+            <HBox fx:id="playerHandBox" prefHeight="120.0" prefWidth="200.0" />
+         </children>
+      </VBox>
+   </bottom>
+   <center>
+      <StackPane fx:id="tableArea" prefHeight="150.0" prefWidth="200.0"
+                 BorderPane.alignment="CENTER" />
+   </center>
+</BorderPane>
