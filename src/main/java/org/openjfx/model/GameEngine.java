@@ -1,5 +1,7 @@
 package org.openjfx.model;
 
+
+import org.openjfx.controller.GameView;
 import org.openjfx.model.GameState;
 import org.openjfx.model.Player;
 
@@ -10,29 +12,31 @@ public class GameEngine {
 
     private GameState state;
     private GameMode gameMode;
+    private GameView view;
     private final int MIN_PLAYER = 2;
     private final int MAX_PLAYER = 6;
     private Card currentCard;
     private Color currentColor;
 
-    public GameEngine(GameState nState, GameMode nGameMode){
+    public GameEngine(GameState nState, GameMode nGameMode, GameView view) {
         this.state = nState;
         this.gameMode = nGameMode;
+        this.view = view;
     }
 
-    public void dealHand(int cardsPerPlayer){
+    public void dealHand(int cardsPerPlayer) {
         // da implementare
-        for (Player player : state.players){
+        for (Player player : state.players) {
             Stack<Card> deck = state.getTopCards(cardsPerPlayer);
             player.initiateHand(deck);
         }
     }
 
-    public void prepareDeck(){
+    public void prepareDeck() {
         state.shuffle(state.drawPile);
     }
 
-    public void startGame(){
+    public void startGame() {
 
         prepareDeck();
         dealHand(7);
@@ -40,42 +44,63 @@ public class GameEngine {
 
         currentCard = state.getTopCards(1).pop(); // Prima carta da mettere a terra
         state.discardPile.add(currentCard);    // Aggiungiamo carta a terra
+        currentColor = currentCard.getcolor();
 
-        Player currentPlayer = null;
-        do{
-            // prendi il primo giocatore
-            currentPlayer = state.getCurrentPlayer();
+        view.updateTopCard(currentCard);
+        view.showMessage("CE LA FACCIAMOOOOO");
 
-            if(currentPlayer instanceof HumanPlayer){
-                humanGame(currentPlayer);
-
-            }else if(currentPlayer instanceof  Player){
-                /* IN REALTA' SAREBBE BotPlayer, NON Player*/
-            }
-
-            // sposta il turno al prossimo giocatore
-            state.nextTurn();
-
-        }while(!gameMode.isMatchOver(currentPlayer));
+        startTurn();
 
 
     }
 
-    public void humanGame(Player human){
-        // si vedono carte in mano
+    public void startTurn()
 
-        // e carta a terra
+    {
+        Player currentPlayer = state.getCurrentPlayer();
+        view.onTurnChanged(currentPlayer);
 
-        List<Card> hand = human.getHand();
+        if (currentPlayer instanceof HumanPlayer) {
+            view.updatePlayerHand(currentPlayer.getHand());
 
-        // SLAVA
-        // scegli una carta dal mazzo dalll clickkkk
-        Card chosenCard = hand.get(0); // (0) per prova.. placeholder value
+            //se il giocatore è umano, lavora, sennò no
+            //intanto si aspetta er click
 
-        // ci serve la seconda condizione in caso il colore è stato cambiato tramite carta WILD JOLLY
-        if (chosenCard.isPlayableOn(currentCard) || chosenCard.getcolor() == currentColor)
-            executeMove(human,chosenCard);
+            view.updatePlayerHand(currentPlayer.getHand());
+            view.showMessage("È il tuo turno, " + currentPlayer.name);
+        } else {
 
+            view.showMessage(currentPlayer.name + " (Bot) sta calcolando l'entropua");
+
+            executeBotTurn(currentPlayer);
+        }
+    }
+
+
+
+    public void humanPlayCard(Card chosenCard) {
+        Player human = state.getCurrentPlayer();
+
+        if (!(human instanceof HumanPlayer)) return;
+
+        if (chosenCard.isPlayableOn(currentCard) || chosenCard.getcolor() == currentColor) {
+            executeMove(human, chosenCard);
+        } else {
+            view.showMessage("Mossa non valida!");
+        }
+    }
+
+    public void humanDrawCard() {
+        Player human = state.getCurrentPlayer();
+        if (state.drawPile.isEmpty()) state.reshuffleDiscardIntoDraw();
+
+        Card drawn = state.drawPile.pop();
+        human.receiveCard(drawn);
+        view.updatePlayerHand(human.getHand());
+        view.showMessage("Hai pescato una carta.");
+
+        // Passiamo direttamente il turno per semplicità
+        endTurn();
     }
 
     public void executeMove(Player player, Card chosenCard){
@@ -86,11 +111,17 @@ public class GameEngine {
         // buttiamo carta a terra
         state.discardPile.add(chosenCard);
 
+        //Aggiorno la carta e la faccio ridisegnare
+        currentCard = chosenCard;
+        currentColor = chosenCard.getcolor();
+        view.updateTopCard(currentCard);
+
         Player nextPlayer = state.getNextPlayer();
         if(chosenCard.getType() == CardType.DRAW_TWO) {
             forcedToDraw(nextPlayer,2);
             /*  ATTENZIONE : il giocatore nextPlayer salta il turno */
             state.nextTurn();
+            endTurn();
         }else if (chosenCard.getType() == CardType.WILD_DRAW){
             chooseColor(Color.BLUE); // placeholder value
             // SLAVA: mi serve un click qui, se il giocatore successivo clicca sulla challenge
@@ -107,6 +138,26 @@ public class GameEngine {
             chooseColor(Color.BLUE); // placeholder value
         }
 
+        endTurn();
+
+    }
+
+    public void endTurn() {
+        //Controllo se ci sono vincitori
+        if (gameMode.isMatchOver(state.getCurrentPlayer())) {
+            view.showMessage("È FINITA! Ha vinto " + state.getCurrentPlayer().name);
+            return;
+        }
+
+        // Passa al prossimo e riavvia il loop
+        state.nextTurn();
+        startTurn();
+    }
+
+    public void executeBotTurn(Player bot) {
+        // Fa finta di pescare e passa
+        forcedToDraw(bot, 1);
+        endTurn();
     }
 
     public void chooseColor(Color newColor){
