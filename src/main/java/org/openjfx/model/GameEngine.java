@@ -24,7 +24,9 @@ public class GameEngine {
         this.gameMode = nGameMode;
         this.view = view;
     }
-
+    /** dealHand() distributes a specified number of cards to each player.
+     * @param cardsPerPlayer
+     */
     public void dealHand(int cardsPerPlayer) {
         // da implementare
         for (Player player : state.players) {
@@ -32,11 +34,14 @@ public class GameEngine {
             player.initiateHand(deck);
         }
     }
-
+    /** prepareDeck() shuffles deck.
+     */
     public void prepareDeck() {
         state.shuffle(state.drawPile);
     }
-
+    /** startGame() lays the foundation of the game by preparing the deck, distributing the cards
+     * and getting the turns started.
+     */
     public void startGame() {
 
         prepareDeck();
@@ -54,7 +59,8 @@ public class GameEngine {
 
 
     }
-
+    /** startTurn() lets the player play
+     */
     public void startTurn() {
         hasDrawnThisTurn = false;
 
