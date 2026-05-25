@@ -74,7 +74,7 @@ public class TavoloController implements GameView {
 
     @Override
     public void onTurnChanged(Player currentPlayer) {
-        lblCurrentPlayer.setText("Current turn: " + currentPlayer.name);
+        lblCurrentPlayer.setText("Current turn: " + currentPlayer.getName());
     }
 
     private void onDeckClicked() {

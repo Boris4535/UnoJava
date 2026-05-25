@@ -24,6 +24,9 @@ public class GameEngine {
         this.view = view;
     }
 
+    /** dealHand() distributes a specified number of cards to each player.
+     * @param cardsPerPlayer
+     */
     public void dealHand(int cardsPerPlayer) {
         // da implementare
         for (Player player : state.players) {
@@ -32,10 +35,15 @@ public class GameEngine {
         }
     }
 
+    /** prepareDeck() shuffles deck.
+     */
     public void prepareDeck() {
         state.shuffle(state.drawPile);
     }
 
+    /** startGame() lays the foundation of the game by preparing the deck, distributing the cards
+     * and getting the turns started.
+     */
     public void startGame() {
 
         prepareDeck();
@@ -51,11 +59,11 @@ public class GameEngine {
 
         startTurn();
 
-
     }
 
+    /** startTurn() lets the player play
+     */
     public void startTurn()
-
     {
         Player currentPlayer = state.getCurrentPlayer();
         view.onTurnChanged(currentPlayer);
@@ -67,10 +75,10 @@ public class GameEngine {
             //intanto si aspetta er click
 
             view.updatePlayerHand(currentPlayer.getHand());
-            view.showMessage("È il tuo turno, " + currentPlayer.name);
+            view.showMessage("È il tuo turno, " + currentPlayer.getName());
         } else {
 
-            view.showMessage(currentPlayer.name + " (Bot) sta calcolando l'entropua");
+            view.showMessage(currentPlayer.getName() + " (Bot) sta calcolando l'entropua");
 
             executeBotTurn(currentPlayer);
         }
@@ -128,7 +136,7 @@ public class GameEngine {
             // if
                 evokeChallenge(nextPlayer, state.getCurrentPlayer());
             // else
-            forcedToDraw(nextPlayer,4);
+                forcedToDraw(nextPlayer,4);
         }else if(chosenCard.getType() == CardType.SKIP) {
             state.nextTurn();
         }else if(chosenCard.getType() == CardType.REVERSE){
@@ -145,7 +153,7 @@ public class GameEngine {
     public void endTurn() {
         //Controllo se ci sono vincitori
         if (gameMode.isMatchOver(state.getCurrentPlayer())) {
-            view.showMessage("È FINITA! Ha vinto " + state.getCurrentPlayer().name);
+            view.showMessage("È FINITA! Ha vinto " + state.getCurrentPlayer().getName());
             return;
         }
 
