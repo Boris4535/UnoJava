@@ -8,6 +8,10 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import org.openjfx.model.*;
+import javafx.animation.Animation;
+import javafx.animation.RotateTransition;
+import javafx.animation.ScaleTransition;
+import javafx.util.Duration;
 
 import java.util.List;
 
@@ -18,24 +22,28 @@ public class TavoloController implements GameView {
     @FXML private Label lblMessage;
     @FXML private Label lblCurrentPlayer;
 
+    //Stavo facendo dei test, maybe will use later
+    @FXML private Label faceTop;
+    @FXML private Label faceLeft;
+    @FXML private Label faceRight;
+
     private GameEngine engine;
 
     @FXML
     public void initialize() {
         renderDeck();
+
+
     }
 
     public void setInitialData(MatchSettings settings) {
         System.out.println("Match started with " + settings.Players.size() + " players");
 
-        // Inizializziamo lo stato e gli passiamo i giocatori letti dal setup
         GameState gameState = new GameState();
         gameState.players = settings.Players;
 
-        // Scegliamo la modalità in base alle impostazioni
         GameMode mode = settings.PointsBasedGame ? new ScoreBasedGame() : new ClassicGame();
 
-        // Creiamo l'engine passando lo stato, la modalità e questa view
         this.engine = new GameEngine(gameState, mode, this);
         engine.startGame();
     }
@@ -43,7 +51,7 @@ public class TavoloController implements GameView {
     @Override
     public void updateTopCard(Card topCard) {
         tableArea.getChildren().removeIf(node -> node.getTranslateX() > 0);
-        Rectangle cardNode = createCardNode(topCard);
+        StackPane cardNode = createCardNode(topCard);
         cardNode.setTranslateX(50);
         tableArea.getChildren().add(cardNode);
     }
@@ -52,9 +60,8 @@ public class TavoloController implements GameView {
     public void updatePlayerHand(List<Card> hand) {
         playerHandBox.getChildren().clear();
         for (Card card : hand) {
-            Rectangle cardNode = createCardNode(card);
-
-            // Qui colleghiamo il click dell'interfaccia alla logica dell'engine
+            StackPane cardNode = createCardNode(card);
+          //UI to game engine
             cardNode.setOnMouseClicked(e -> {
                 if (engine != null) {
                     engine.humanPlayCard(card);
@@ -67,14 +74,19 @@ public class TavoloController implements GameView {
         playerHandBox.setSpacing(-20);
     }
 
+//Ho fatto un casino lol, riordinato nu poc
     @Override
-    public void showMessage(String msg) {
-        lblMessage.setText(msg);
+    public void showMessage(String message) {
+        if (lblMessage != null) {
+            lblMessage.setText(message);
+        }
     }
 
     @Override
     public void onTurnChanged(Player currentPlayer) {
-        lblCurrentPlayer.setText("Current turn: " + currentPlayer.name);
+        if (lblCurrentPlayer != null) {
+            lblCurrentPlayer.setText("Current turn: " + currentPlayer.name);
+        }
     }
 
     private void onDeckClicked() {
@@ -83,20 +95,53 @@ public class TavoloController implements GameView {
         }
     }
 
-    private Rectangle createCardNode(Card card) {
+    // ----------------------------------
+
+    private StackPane createCardNode(Card card) {
+        StackPane pane = new StackPane();
+        pane.setMaxSize(70, 105);
+
         Rectangle rect = new Rectangle(70, 105);
-        rect.setStroke(Color.WHITE);
-        rect.setStrokeWidth(3);
-        rect.setArcWidth(15);
-        rect.setArcHeight(15);
+        rect.setStroke(Color.web("#00ff00"));
+        rect.setStrokeWidth(4);
+        rect.setStrokeType(javafx.scene.shape.StrokeType.INSIDE);
+
         switch (card.getcolor()) {
             case RED -> rect.setFill(Color.web("#d12a2a"));
             case BLUE -> rect.setFill(Color.web("#2a6cd1"));
             case GREEN -> rect.setFill(Color.web("#2ad14b"));
             case YELLOW -> rect.setFill(Color.web("#f0c816"));
-            case WILD -> rect.setFill(Color.web("#4b0082"));
+            case WILD -> rect.setFill(Color.web("#8b008b"));
         }
-        return rect;
+
+        javafx.scene.text.Text text = new javafx.scene.text.Text();
+        text.setFont(javafx.scene.text.Font.font("Impact", javafx.scene.text.FontWeight.BOLD, 32));
+        text.setFill(Color.web("#ffff00"));
+        text.setStroke(Color.BLACK);
+        text.setStrokeWidth(1.5);
+
+        // Twxto
+        switch(card.getType()) {
+            case NUMBERS -> text.setText(String.valueOf(card.getValue()));
+            case SKIP -> text.setText("Ø");
+            case REVERSE -> text.setText("R");
+            case DRAW_TWO -> text.setText("+2");
+            case WILD_JOLLY -> text.setText("W");
+            case WILD_DRAW -> text.setText("+4");
+        }
+
+        // CAOS QUI, anche se forse tolgo. It was for funsies in un test
+        pane.setOnMouseEntered(e -> {
+            pane.setRotate(Math.random() * 10 - 5);
+            rect.setStroke(Color.web("#ff00ff"));
+        });
+        pane.setOnMouseExited(e -> {
+            pane.setRotate(0);
+            rect.setStroke(Color.web("#00ff00"));
+        });
+
+        pane.getChildren().addAll(rect, text);
+        return pane;
     }
 
     private void renderDeck() {
