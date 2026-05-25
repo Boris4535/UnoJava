@@ -19,6 +19,7 @@ public class SetupController {
     @FXML private CheckBox     chkNumberRush;
     @FXML private CheckBox     chkSevenZero;
     @FXML private VBox         playersContainer;
+    @FXML private Spinner<Integer> spinnerPlayers;
 
     public static final int DEFAULT_PLAYERS = 2;
 
@@ -29,6 +30,24 @@ public class SetupController {
             togglePunti.setText(newVal ? "Partita a Punti" : "Partita Singola");
         });
         txtSoglia.setDisable(true);
+
+        // Configura lo spinner
+        /*Praticamente, parte che poi scrivo nel javadoc.
+         l'utilizzo di uno switch case (seleziona il numero di giocatori e in base a quello generiamo) è brutta e poco elegante
+         mentre mettere un campo di testo o cose del genere è ancora più cringe ed error prone. << "dammi -67 giocatori hahahaahh!!!>>
+         lo spinner, è, come dire, una rotella.  Noi gli diamo an upper and lower bound, ed essa, in base all'input aggiunge e toglie.
+
+         ASSIEME AL LISTENER, esso controlla cosa è cambiato solo quando qualcosa cambia, non sta lì a mangiare memoria su memoria
+         controllando cose
+         */
+
+        SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 6, DEFAULT_PLAYERS);
+        spinnerPlayers.setValueFactory(valueFactory);
+
+        // Listener: se il numero cambia, rigenera le righe
+        spinnerPlayers.valueProperty().addListener((obs, oldVal, newVal) -> {
+            buildPlayerRows(newVal);
+        });
 
         buildPlayerRows(DEFAULT_PLAYERS);
     }

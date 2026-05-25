@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -7,30 +6,38 @@
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-            prefHeight="400.0" prefWidth="600.0"
+            prefHeight="600.0" prefWidth="800.0"
+            stylesheets="@Styles.css"
             xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="org.openjfx.controller.TavoloController">
+
    <top>
-      <Label text="avatar" BorderPane.alignment="CENTER" />
+      <VBox styleClass="weird-band" alignment="CENTER" prefHeight="30.0">
+         <Label styleClass="hieroglyphs" text="███████ ⊗ ███████" />
+      </VBox>
    </top>
    <left>
-      <Label text="avatar" BorderPane.alignment="CENTER" />
+      <VBox styleClass="weird-band" alignment="CENTER" prefWidth="40.0">
+         <Label styleClass="hieroglyphs" text="☗" wrapText="true" rotate="90" />
+      </VBox>
    </left>
    <right>
-      <Label text="avatar" BorderPane.alignment="CENTER" />
+      <VBox styleClass="weird-band" alignment="CENTER" prefWidth="40.0">
+         <Label styleClass="hieroglyphs" text="☗" wrapText="true" rotate="-90" />
+      </VBox>
    </right>
-   <bottom>
-      <VBox spacing="6.0" BorderPane.alignment="CENTER">
-         <children>
 
-            <Label fx:id="lblMessage"       text="" style="-fx-font-style: italic;" />
-            <Label fx:id="lblCurrentPlayer" text="" style="-fx-font-weight: bold;" />
-            <HBox fx:id="playerHandBox" prefHeight="120.0" prefWidth="200.0" />
+   <bottom>
+      <VBox spacing="10.0" BorderPane.alignment="CENTER" style="-fx-background-color: #0a0a0a; -fx-border-color: #2b0000; -fx-border-width: 5 0 0 0; -fx-padding: 10;">
+         <children>
+            <Label fx:id="lblMessage" text="STATUS: STANDBY" style="-fx-text-fill: #555555; -fx-font-family: monospace;" />
+            <Label fx:id="lblCurrentPlayer" text="ID_ENTITA: NULL" style="-fx-text-fill: #880000; -fx-font-weight: bold; -fx-font-family: monospace;" />
+            <HBox fx:id="playerHandBox" prefHeight="130.0" alignment="CENTER" />
          </children>
       </VBox>
    </bottom>
+
    <center>
-      <StackPane fx:id="tableArea" prefHeight="150.0" prefWidth="200.0"
-                 BorderPane.alignment="CENTER" />
+      <StackPane fx:id="tableArea" BorderPane.alignment="CENTER" />
    </center>
 </BorderPane>

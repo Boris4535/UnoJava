@@ -17,13 +17,13 @@ public class GameEngine {
     private final int MAX_PLAYER = 6;
     private Card currentCard;
     private Color currentColor;
+    private boolean hasDrawnThisTurn = false;
 
     public GameEngine(GameState nState, GameMode nGameMode, GameView view) {
         this.state = nState;
         this.gameMode = nGameMode;
         this.view = view;
     }
-
     /** dealHand() distributes a specified number of cards to each player.
      * @param cardsPerPlayer
      */
@@ -34,13 +34,11 @@ public class GameEngine {
             player.initiateHand(deck);
         }
     }
-
     /** prepareDeck() shuffles deck.
      */
     public void prepareDeck() {
         state.shuffle(state.drawPile);
     }
-
     /** startGame() lays the foundation of the game by preparing the deck, distributing the cards
      * and getting the turns started.
      */
@@ -59,12 +57,13 @@ public class GameEngine {
 
         startTurn();
 
-    }
 
+    }
     /** startTurn() lets the player play
      */
-    public void startTurn()
-    {
+    public void startTurn() {
+        hasDrawnThisTurn = false;
+
         Player currentPlayer = state.getCurrentPlayer();
         view.onTurnChanged(currentPlayer);
 
@@ -75,10 +74,10 @@ public class GameEngine {
             //intanto si aspetta er click
 
             view.updatePlayerHand(currentPlayer.getHand());
-            view.showMessage("È il tuo turno, " + currentPlayer.getName());
+            view.showMessage("È il tuo turno, " + currentPlayer.name);
         } else {
 
-            view.showMessage(currentPlayer.getName() + " (Bot) sta calcolando l'entropua");
+            view.showMessage(currentPlayer.name + " (Bot) sta calcolando l'entropua");
 
             executeBotTurn(currentPlayer);
         }
@@ -102,14 +101,34 @@ public class GameEngine {
         Player human = state.getCurrentPlayer();
         if (state.drawPile.isEmpty()) state.reshuffleDiscardIntoDraw();
 
+        //COntrollo pescaggio
+        if (hasDrawnThisTurn) {
+            view.showMessage("Hai già pescato! Gioca una carta.");
+            return;
+        }
+
+        if (state.drawPile.isEmpty()) state.reshuffleDiscardIntoDraw();
+
         Card drawn = state.drawPile.pop();
         human.receiveCard(drawn);
+
+        //HO PESCATO
+        hasDrawnThisTurn = true;
+
         view.updatePlayerHand(human.getHand());
         view.showMessage("Hai pescato una carta.");
 
-        // Passiamo direttamente il turno per semplicità
-        endTurn();
+
+        //vicolo cieco
+        if (!hasPlayableCards(human)) {
+            view.showMessage("Nessuna mossa possibile. Turno passato!");
+            endTurn(); // Passa in automatico
+        } else {
+            view.showMessage("Hai pescato. Ora scegli una carta da giocare!");
+        }
+
     }
+
 
     public void executeMove(Player player, Card chosenCard){
 
@@ -136,7 +155,7 @@ public class GameEngine {
             // if
                 evokeChallenge(nextPlayer, state.getCurrentPlayer());
             // else
-                forcedToDraw(nextPlayer,4);
+            forcedToDraw(nextPlayer,4);
         }else if(chosenCard.getType() == CardType.SKIP) {
             state.nextTurn();
         }else if(chosenCard.getType() == CardType.REVERSE){
@@ -153,7 +172,7 @@ public class GameEngine {
     public void endTurn() {
         //Controllo se ci sono vincitori
         if (gameMode.isMatchOver(state.getCurrentPlayer())) {
-            view.showMessage("È FINITA! Ha vinto " + state.getCurrentPlayer().getName());
+            view.showMessage("È FINITA! Ha vinto " + state.getCurrentPlayer().name);
             return;
         }
 
@@ -163,9 +182,26 @@ public class GameEngine {
     }
 
     public void executeBotTurn(Player bot) {
-        // Fa finta di pescare e passa
-        forcedToDraw(bot, 1);
-        endTurn();
+        // Anche mr Bot ora cerca le carte!
+        for (Card c : bot.getHand()) {
+            if (c.isPlayableOn(currentCard) || c.getcolor() == currentColor) {
+                executeMove(bot, c);
+                return; // Ha giocato, fine del suo turno
+            }
+        }
+
+        // Se non ha trovato niente, pesca una carta
+        if (state.drawPile.isEmpty()) state.reshuffleDiscardIntoDraw();
+        Card drawn = state.drawPile.pop();
+        bot.receiveCard(drawn);
+
+        // Controlla se la carta appena pescata (o le altre) sono giocabili ora
+        if (drawn.isPlayableOn(currentCard) || drawn.getcolor() == currentColor) {
+            executeMove(bot, drawn);
+        } else {
+            // Niente da fare, passa il turno
+            endTurn();
+        }
     }
 
     public void chooseColor(Color newColor){
@@ -212,5 +248,13 @@ public class GameEngine {
         }
     }
 
-
+    //Controlla se ci sono carte giocabili
+    public boolean hasPlayableCards(Player player) {
+        for (Card c : player.getHand()) {
+            if (c.isPlayableOn(currentCard) || c.getcolor() == currentColor) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
