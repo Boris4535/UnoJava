@@ -1,0 +1,13 @@
+Da fare per i non madrelingua >-<
+- Implementare chiamata uno;
+- Implementare punteggi (e di conseguenza check su ScoreBasedGame);
+- Bot (me e leeeon);
+- Fai in modo che chooseColor() venga scelto se: la challenge non è attivata ||
+se è attivata dal vincitore;
+- Implementare statistiche (ne parliamo, potremmo fare un'interfaccia implementate
+da Player)
+- Implementare regole alternative:
+    1) Stacking
+    2) Number rush
+    3) Seven-Zero
+- Implementare modalità simulazione

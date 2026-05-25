@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Stack;
 
 public abstract class Player {
-    public String name;
+    private String name;
     private List<Card> hand = new LinkedList<>();
     private HashMap<CardType, Integer> points;
 
@@ -15,7 +15,9 @@ public abstract class Player {
     public int getHandSize(){ return hand.size();}
     public boolean hasUno(){ return hand.size() == 1;}
     public List<Card> getHand(){ return hand;}
-
+    public String getName(){    return this.name;   }
+    public HashMap<CardType, Integer> getPoints() { return this.points;  }
+    public void setName(String nName){ this.name = nName; }
 
     public void initiateHand(Stack<Card> cards){
         hand = new LinkedList<>();
@@ -29,6 +31,7 @@ public abstract class Player {
         }
         return intPoints;
     }
+
 }
 
 
