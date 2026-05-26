@@ -39,11 +39,14 @@ public class TavoloController implements GameView {
     public void setInitialData(MatchSettings settings) {
         System.out.println("Match started with " + settings.Players.size() + " players");
 
+        // Inizializziamo lo stato e gli passiamo i giocatori letti dal setup
         GameState gameState = new GameState();
         gameState.players = settings.Players;
 
+        // Scegliamo la modalità in base alle impostazioni
         GameMode mode = settings.PointsBasedGame ? new ScoreBasedGame() : new ClassicGame();
 
+        // Creiamo l'engine passando lo stato, la modalità e questa view
         this.engine = new GameEngine(gameState, mode, this);
         engine.startGame();
     }
