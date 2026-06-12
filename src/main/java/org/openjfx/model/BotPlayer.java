@@ -52,7 +52,7 @@ public class BotPlayer extends Player {
                 if(c.getColor() != current.getColor() &&
                         (currentType == CardType.NUMBERS) && c.getType() == CardType.NUMBERS) return c;
         }
-
+        //If all else fails, pick a numbered card
         return hand.get(types.indexOf(1));
 
     }
