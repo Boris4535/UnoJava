@@ -8,10 +8,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import org.openjfx.model.*;
-import javafx.animation.Animation;
-import javafx.animation.RotateTransition;
-import javafx.animation.ScaleTransition;
-import javafx.util.Duration;
 
 import java.util.List;
 
@@ -109,7 +105,7 @@ public class TavoloController implements GameView {
         rect.setStrokeWidth(4);
         rect.setStrokeType(javafx.scene.shape.StrokeType.INSIDE);
 
-        switch (card.getcolor()) {
+        switch (card.getColor()) {
             case RED -> rect.setFill(Color.web("#d12a2a"));
             case BLUE -> rect.setFill(Color.web("#2a6cd1"));
             case GREEN -> rect.setFill(Color.web("#2ad14b"));
