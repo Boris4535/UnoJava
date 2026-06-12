@@ -2,8 +2,6 @@ package org.openjfx.model;
 
 
 import org.openjfx.controller.GameView;
-import org.openjfx.model.GameState;
-import org.openjfx.model.Player;
 
 import java.util.List;
 import java.util.Stack;
@@ -50,7 +48,7 @@ public class GameEngine {
 
         currentCard = state.getTopCards(1).pop(); // Prima carta da mettere a terra
         state.discardPile.add(currentCard);    // Aggiungiamo carta a terra
-        currentColor = currentCard.getcolor();
+        currentColor = currentCard.getColor();
 
         view.updateTopCard(currentCard);
         view.showMessage("CE LA FACCIAMOOOOO");
@@ -79,18 +77,20 @@ public class GameEngine {
 
             view.showMessage(currentPlayer.name + " (Bot) sta calcolando l'entropua");
 
-            executeBotTurn(currentPlayer);
+            executeBotTurn((BotPlayer) currentPlayer);
         }
     }
 
-
+    public Card getCurrentCard(){
+        return new Card(currentColor, currentCard.getType(), currentCard.getValue());
+    }
 
     public void humanPlayCard(Card chosenCard) {
         Player human = state.getCurrentPlayer();
 
         if (!(human instanceof HumanPlayer)) return;
 
-        if (chosenCard.isPlayableOn(currentCard) || chosenCard.getcolor() == currentColor) {
+        if (chosenCard.isPlayableOn(currentCard) || chosenCard.getColor() == currentColor) {
             executeMove(human, chosenCard);
         } else {
             view.showMessage("Mossa non valida!");
@@ -140,7 +140,7 @@ public class GameEngine {
 
         //Aggiorno la carta e la faccio ridisegnare
         currentCard = chosenCard;
-        currentColor = chosenCard.getcolor();
+        currentColor = chosenCard.getColor();
         view.updateTopCard(currentCard);
 
         Player nextPlayer = state.getNextPlayer();
@@ -181,14 +181,12 @@ public class GameEngine {
         startTurn();
     }
 
-    public void executeBotTurn(Player bot) {
-        // Anche mr Bot ora cerca le carte!
-        for (Card c : bot.getHand()) {
-            if (c.isPlayableOn(currentCard) || c.getcolor() == currentColor) {
-                executeMove(bot, c);
-                return; // Ha giocato, fine del suo turno
-            }
-        }
+    public void executeBotTurn(BotPlayer bot) {
+        //Picks a card based on its personality
+        Card chosen = bot.BotPlays(getCurrentCard());
+
+        //Only plays a card if it can do so
+        if(chosen != null) executeMove(bot, chosen);
 
         // Se non ha trovato niente, pesca una carta
         if (state.drawPile.isEmpty()) state.reshuffleDiscardIntoDraw();
@@ -196,7 +194,7 @@ public class GameEngine {
         bot.receiveCard(drawn);
 
         // Controlla se la carta appena pescata (o le altre) sono giocabili ora
-        if (drawn.isPlayableOn(currentCard) || drawn.getcolor() == currentColor) {
+        if (drawn.isPlayableOn(currentCard) || drawn.getColor() == currentColor) {
             executeMove(bot, drawn);
         } else {
             // Niente da fare, passa il turno
@@ -215,7 +213,7 @@ public class GameEngine {
      */
     public boolean checkHand(List<Card> handToCheck){
         for(Card card : handToCheck){
-            if(card.getcolor() == currentCard.getcolor())
+            if(card.getColor() == currentCard.getColor())
                 return true;
         }
         return false;
@@ -251,7 +249,7 @@ public class GameEngine {
     //Controlla se ci sono carte giocabili
     public boolean hasPlayableCards(Player player) {
         for (Card c : player.getHand()) {
-            if (c.isPlayableOn(currentCard) || c.getcolor() == currentColor) {
+            if (c.isPlayableOn(currentCard) || c.getColor() == currentColor) {
                 return true;
             }
         }

@@ -15,7 +15,7 @@ public class Card {
         this.type = type;
     }
 
-    public Color getcolor(){return this.color;}
+    public Color getColor(){return this.color;}
     public int getValue(){return this.value;}
     public CardType getType(){return this.type;}
 
@@ -32,7 +32,7 @@ public class Card {
         }
 
         //Colori
-        if (this.color == topCard.getcolor()) {
+        if (this.color == topCard.getColor()) {
             return true;
         }
         //numeriche
