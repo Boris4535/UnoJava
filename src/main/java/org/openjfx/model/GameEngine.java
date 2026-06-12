@@ -1,6 +1,5 @@
 package org.openjfx.model;
 
-
 import org.openjfx.controller.GameView;
 import org.openjfx.model.GameState;
 import org.openjfx.model.Player;
@@ -84,8 +83,9 @@ public class GameEngine {
         }
     }
 
-
-
+    /** humanPlayCard() checks if the card is playable and then execute the move.
+     * @param chosenCard
+     */
     public void humanPlayCard(Card chosenCard) {
         Player human = state.getCurrentPlayer();
 
@@ -98,12 +98,18 @@ public class GameEngine {
         }
     }
 
+    /** humanDrawCard() checks if drawPile is empty, otherwise lets human draw card.
+     */
     public void humanDrawCard() {
         Player human = state.getCurrentPlayer();
         if (state.drawPile.isEmpty()) state.reshuffleDiscardIntoDraw();
 
         Card drawn = state.drawPile.pop();
         human.receiveCard(drawn);
+
+        // avendo preso da terra, la sua condizione di uno si annulla
+        resetUnoCondition(human);
+
         view.updatePlayerHand(human.getHand());
         view.showMessage("Hai pescato una carta.");
 
@@ -111,6 +117,11 @@ public class GameEngine {
         endTurn();
     }
 
+    /** executeMove() actually plays the card, and evoke its properties if necessary.
+     * It also handles the option to evoke a challenge.
+     * @param player
+     * @param chosenCard
+     */
     public void executeMove(Player player, Card chosenCard){
 
         // cancelliamo carta dal mazzo
@@ -146,20 +157,74 @@ public class GameEngine {
             chooseColor(Color.BLUE); // placeholder value
         }
 
+        // SE SCHIACCIA IL PULSANTE UNO
+        // SLAVA serve er click -> chiama funzione
+        /* callUno(player) */
+
+        // può anche contestare la mancata chiamata di uno
+        // SLAVA ->
+        /* disputeUnoCall(Player giocatoreDaIncolpare) */
+
         endTurn();
+    }
+
+    public void callUno(Player player){
+        if (canCallUno(player)) {
+            // se il giocatore può chiamare l'uno (quindi se ha una carta in mano)
+            player.setHasCalledUno(true);
+            // altrimenti rimane false di default
+
+            // giocatore successivo nel turno successivo può contesta
+        }else
+            System.out.println("Cazzo fai");
+    }
+
+    public boolean canCallUno(Player player){
+        return player.hasUno();
+    }
+
+    public void resetUnoCondition(Player player){
+        if (!player.hasUno())
+            player.setHasCalledUno(false);
+    }
+
+    public void disputeUnoCall(Player challenged){
+        if (challenged.hasUno() && challenged.getHasCalledUno())
+            System.out.println(challenged + " ha chiamato correttamente uno");
+            // SLAVA: view per mostrare che aveva torto il giocatore chiamante
+        else if(challenged.hasUno() && !challenged.getHasCalledUno())
+            forcedToDraw(challenged,2);
+            // SLAVA: view puniscilo!!!
 
     }
 
+    /** endTurn() checks if the match is over (according to whether it's a classic match or scoreBased).
+     *  If that is not the case, it lets the game continue.
+     */
     public void endTurn() {
-        //Controllo se ci sono vincitori
-        if (gameMode.isMatchOver(state.getCurrentPlayer())) {
-            view.showMessage("È FINITA! Ha vinto " + state.getCurrentPlayer().getName());
-            return;
-        }
+        if (state.getCurrentPlayer().getHandSize() == 0) {
 
+            // noi aggiorniamo in ogni caso
+            updateScores(state.getCurrentPlayer(), state.players);
+
+            if (gameMode.isMatchOver(state)) {
+                view.showMessage("È FINITA! Ha vinto " + state.getCurrentPlayer().getName());
+                return;
+            }else{
+                // Caso in cui possiamo cadere solo nello ScoredBased,perché magari qualcuno
+                // ha vinto l'uno ma non è ancora arrivato al punteggio....
+                startGame(); // ricomincia e rimescola
+                return;
+            }
+
+        }
         // Passa al prossimo e riavvia il loop
         state.nextTurn();
         startTurn();
+    }
+
+    public void updateScores(Player currentWinner, List<Player> otherPlayers){
+        currentWinner.updateScore(gameMode.calculateOverallScore(currentWinner, otherPlayers));
     }
 
     public void executeBotTurn(Player bot) {
@@ -168,6 +233,9 @@ public class GameEngine {
         endTurn();
     }
 
+    /** chooseColor() sets given color as the current playable color.
+     * @param newColor
+     */
     public void chooseColor(Color newColor){
         this.currentColor = newColor;
     }
@@ -210,6 +278,7 @@ public class GameEngine {
         for(int i = 0; i < amountCards; i++){
             player.receiveCard(penaltyStack.get(i));
         }
+        resetUnoCondition(player);
     }
 
 

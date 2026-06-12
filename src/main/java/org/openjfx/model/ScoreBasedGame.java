@@ -4,15 +4,18 @@ import org.openjfx.model.Player;
 
 public class ScoreBasedGame implements GameMode{
 
-    @Override
-    public int getWinnerScore(Player winner) {
-        return 0;
-    }
+    GameMode mode;
 
     @Override
-    public boolean isMatchOver(Player player) {
-        return player.getIntPoints() >= 500;
+    public boolean isMatchOver(GameState state) {
+        for (Player player : state.players) {
+            if (player.getMatchScore() >= 500) {
+                return true;
+            }
+        }
+        return false;
     }
+
 
 
 }
