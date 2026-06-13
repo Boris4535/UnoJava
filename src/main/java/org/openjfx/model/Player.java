@@ -28,7 +28,6 @@ public abstract class Player {
         hand.addAll(cards);
     }
 
-
 }
 
 
