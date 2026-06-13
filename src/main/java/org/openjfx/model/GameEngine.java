@@ -88,19 +88,19 @@ public class GameEngine {
         }
     }
 
-    /** humanPlayCard() checks if the card is playable and then execute the move.
-     * @param chosenCard
-     */
     public Card getCurrentCard(){
         return new Card(currentColor, currentCard.getType(), currentCard.getValue());
     }
 
+    /** humanPlayCard() checks if the card is playable and then execute the move.
+     * @param chosenCard
+     */
     public void humanPlayCard(Card chosenCard) {
         Player human = state.getCurrentPlayer();
 
         if (!(human instanceof HumanPlayer)) return;
 
-        if (chosenCard.isPlayableOn(currentCard) || chosenCard.getcolor() == currentColor) {
+        if (chosenCard.isPlayableOn(currentCard) || chosenCard.getColor() == currentColor) {
             state.getMatchStats().decrementPointsTo(human,chosenCard);
       
             executeMove(human, chosenCard);
@@ -329,6 +329,9 @@ public class GameEngine {
             forcedToDraw(challenged,4);
         else
             forcedToDraw(challenger,6);
+
+        state.getMatchStats().incrementChallenges(challenger);
+        state.getMatchStats().incrementChallenges(challenged);
     }
 
     /** forcedToDraw() adds a specified amount of cards to the hand of a specific player
