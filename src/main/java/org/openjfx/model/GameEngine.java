@@ -5,6 +5,7 @@ import org.openjfx.model.GameState;
 import org.openjfx.model.Player;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 public class GameEngine {
@@ -12,6 +13,7 @@ public class GameEngine {
     private GameState state;
     private GameMode gameMode;
     private GameView view;
+    private GameStats globalStats;
     private final int MIN_PLAYER = 2;
     private final int MAX_PLAYER = 6;
     private Card currentCard;
@@ -21,6 +23,8 @@ public class GameEngine {
         this.state = nState;
         this.gameMode = nGameMode;
         this.view = view;
+
+        globalStats = new GameStats();
     }
 
     /** dealHand() distributes a specified number of cards to each player.
@@ -45,6 +49,8 @@ public class GameEngine {
      */
     public void startGame() {
 
+        state.getMatchStats().incrementRounds();
+
         prepareDeck();
         dealHand(7);
         // distribuisci carte
@@ -64,6 +70,8 @@ public class GameEngine {
      */
     public void startTurn()
     {
+        state.getMatchStats().incrementTurns();
+
         Player currentPlayer = state.getCurrentPlayer();
         view.onTurnChanged(currentPlayer);
 
@@ -92,6 +100,7 @@ public class GameEngine {
         if (!(human instanceof HumanPlayer)) return;
 
         if (chosenCard.isPlayableOn(currentCard) || chosenCard.getcolor() == currentColor) {
+            state.getMatchStats().decrementPointsTo(human,chosenCard);
             executeMove(human, chosenCard);
         } else {
             view.showMessage("Mossa non valida!");
@@ -106,6 +115,8 @@ public class GameEngine {
 
         Card drawn = state.drawPile.pop();
         human.receiveCard(drawn);
+        // incrementa punti a causa della carta che hai pescato
+        state.getMatchStats().incrementPointsTo(human,drawn);
 
         // avendo preso da terra, la sua condizione di uno si annulla
         resetUnoCondition(human);
@@ -204,15 +215,15 @@ public class GameEngine {
     public void endTurn() {
         if (state.getCurrentPlayer().getHandSize() == 0) {
 
-            // noi aggiorniamo in ogni caso
-            updateScores(state.getCurrentPlayer(), state.players);
-
             if (gameMode.isMatchOver(state)) {
                 view.showMessage("È FINITA! Ha vinto " + state.getCurrentPlayer().getName());
+
+                saveStatsForAllPLayers();
+                globalStats.registerMatch(state.getMatchStats());
                 return;
             }else{
                 // Caso in cui possiamo cadere solo nello ScoredBased,perché magari qualcuno
-                // ha vinto l'uno ma non è ancora arrivato al punteggio....
+                // ha vinto l'uno ma non è ancora arrivato al punteggio...
                 startGame(); // ricomincia e rimescola
                 return;
             }
@@ -223,9 +234,24 @@ public class GameEngine {
         startTurn();
     }
 
-    public void updateScores(Player currentWinner, List<Player> otherPlayers){
-        currentWinner.updateScore(gameMode.calculateOverallScore(currentWinner, otherPlayers));
+    public void saveStatsForAllPLayers(){
+        int winningScore = state.getMatchStats().getPointsFromAllPlayers();
+        Player winner = state.getCurrentPlayer();
+
+        Map<Player,Integer> playerPenalties = state.getMatchStats().getPenaltiesPerPlayer();
+        Map<Player,Integer> playerChallenges = state.getMatchStats().getPenaltiesPerPlayer();
+
+        for(Player p : state.players){
+            int numPenalties = playerPenalties.get(p);
+            int numChallenges = playerChallenges.get(p);
+
+            if(!p.equals(winner))
+                p.registerMatch(false,0,numPenalties,numChallenges);
+            else
+                p.registerMatch(true,winningScore, numPenalties,numChallenges);
+        }
     }
+
 
     public void executeBotTurn(Player bot) {
         // Fa finta di pescare e passa
@@ -276,8 +302,11 @@ public class GameEngine {
     public void forcedToDraw(Player player, int amountCards){
         Stack<Card> penaltyStack = state.getTopCards(amountCards);
         for(int i = 0; i < amountCards; i++){
-            player.receiveCard(penaltyStack.get(i));
+            Card penaltyCard = penaltyStack.get(i);
+            player.receiveCard(penaltyCard);
+            state.getMatchStats().incrementPointsTo(player,penaltyCard);
         }
+        state.getMatchStats().incrementPenalties(player);
         resetUnoCondition(player);
     }
 

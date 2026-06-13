@@ -5,8 +5,8 @@ import java.util.*;
 public abstract class Player {
     private String name;
     private List<Card> hand = new LinkedList<>();
-    private int matchScore;
     private boolean hasCalledUno = false;
+    private PlayerStats playerStats = new PlayerStats();
 
     public void receiveCard(Card c){hand.add(c);}
     public void removeCard(Card c){hand.remove(c);}
@@ -14,20 +14,20 @@ public abstract class Player {
     public boolean hasUno(){ return hand.size() == 1;}
     public List<Card> getHand(){ return hand;}
     public String getName(){    return this.name;   }
-    public int getMatchScore() { return this.matchScore;  }
-    public void setMatchScore(int nMatchScore){ this.matchScore = nMatchScore; }
     public void setName(String nName){ this.name = nName; }
     public boolean getHasCalledUno() { return this.hasCalledUno; }
     public void setHasCalledUno(boolean bool) { this.hasCalledUno = bool; }
+
+    public PlayerStats getStats(){ return this.playerStats; }
+    public void registerMatch(boolean hasWon, int winningScore, int numPenalties, int numChallanges){
+        this.getStats().registerMatch(hasWon,winningScore,numPenalties,numPenalties);
+    }
 
     public void initiateHand(Stack<Card> cards){
         hand = new LinkedList<>();
         hand.addAll(cards);
     }
 
-    public void updateScore(int nScore){
-        this.matchScore += nScore;
-    }
 
 }
 
