@@ -319,6 +319,21 @@ public class GameEngine {
     }
 
 
+    public void humanCallUno() {
+        Player human = state.getCurrentPlayer();
+
+        if (human instanceof HumanPlayer) {
+            callUno(human);
+
+            if (human.getHasCalledUno()) {
+                view.showMessage(human.getName() + " UNO");
+            } else {
+                view.showMessage("NO UNO");
+            }
+        }
+    }
+
+
     public void executeBotTurn(BotPlayer bot) {
         //Picks a card based on its personality
         Card chosen = bot.BotPlays(getCurrentCard());
