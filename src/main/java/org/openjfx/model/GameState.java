@@ -14,6 +14,7 @@ public class GameState {
     public int currentPlayerIndex;
     public Color currentColor;
     public boolean clockwisePhase = true;
+    private MatchStats matchStats; // tiene le statistiche di ogni singola partita
 
     public GameState() {
         initDrawPile();
@@ -95,6 +96,10 @@ public class GameState {
         temp.add(drawPile.pop());
         }
         return temp;
+    }
+
+    public MatchStats getMatchStats(){
+        return this.getMatchStats();
     }
 
     public void reshuffleDiscardIntoDraw(){ drawPile = shuffle(discardPile);}
