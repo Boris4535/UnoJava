@@ -4,9 +4,22 @@
 .root {
     -fx-background-color: #0d0d0d;
     -fx-background-image:
-            repeating-linear-gradient(transparent 0px, transparent 48px, #1a1a1a 48px, #1a1a1a 50px),
-            repeating-linear-gradient(90deg, transparent 0px, transparent 48px, #1a1a1a 48px, #1a1a1a 50px);
+    repeating-linear-gradient(135deg, #ff00ff 0px, #ff00ff 5px, transparent 5px, transparent 10px),
+    repeating-linear-gradient(45deg, #00ff00 0px, #00ff00 10px, #000000 10px, #000000 20px);
+
     -fx-font-family: "Comic Sans MS", "Impact";
+}
+
+
+.button {
+    -fx-background-color: linear-gradient(to bottom right, #ff0000, #00ffff);
+    -fx-border-color: #ffff00 #ff00ff #00ff00 #ff0000;
+    -fx-border-width: 6px 3px 8px 2px;
+    -fx-border-style: solid dashed dotted double;
+    -fx-text-fill: #000000;
+    -fx-font-family: "Times New Roman";
+    -fx-font-weight: 900;
+    -fx-cursor: wait;
 }
 
 .weird-band {

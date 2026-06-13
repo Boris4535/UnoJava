@@ -11,17 +11,21 @@ public class GameEngine {
     private GameState state;
     private GameMode gameMode;
     private GameView view;
+    private MatchSettings settings;
     private GameStats globalStats;
     private final int MIN_PLAYER = 2;
     private final int MAX_PLAYER = 6;
     private Card currentCard;
     private Color currentColor;
     private boolean hasDrawnThisTurn = false;
+    private int pendingDrawPenalty = 0;
+    private boolean hasDeclaredUno = false;
 
-    public GameEngine(GameState nState, GameMode nGameMode, GameView view) {
+    public GameEngine(GameState nState, GameMode nGameMode, GameView view, MatchSettings settings) {
         this.state = nState;
         this.gameMode = nGameMode;
         this.view = view;
+        this.settings = settings;
 
         globalStats = new GameStats();
     }
@@ -68,9 +72,16 @@ public class GameEngine {
     {
         state.getMatchStats().incrementTurns();
         hasDrawnThisTurn = false;
-
         Player currentPlayer = state.getCurrentPlayer();
+
+        //Controllo se c'è lo stacking all'inizio
+
         view.onTurnChanged(currentPlayer);
+
+        if (state.pendingDrawPenalty > 0) {
+            handleStackingPhase(currentPlayer);
+            return; // Fermiamo l'esecuzione normale del turno
+        }
 
         if (currentPlayer instanceof HumanPlayer) {
             view.updatePlayerHand(currentPlayer.getHand());
@@ -82,12 +93,39 @@ public class GameEngine {
             view.showMessage("È il tuo turno, " + currentPlayer.name);
         } else {
 
-            view.showMessage(currentPlayer.name + " (Bot) sta calcolando l'entropua");
+            view.showMessage(currentPlayer.name + " (Bot) sta calcolando l'entropia");
 
             executeBotTurn((BotPlayer) currentPlayer);
         }
     }
 
+    private void handleStackingPhase(Player currentPlayer) {
+        boolean canDefend = false;
+
+        for (Card c : currentPlayer.getHand()){
+            if (c.getType() == state.activeStackType){
+                canDefend = true;
+                break;
+            }
+        }
+
+        if(canDefend) {
+            view.showMessage(currentPlayer.getName() + "C'è uno stack");
+        }else{
+            view.showMessage(currentPlayer.getName() + "Sei stato tutto stackkato");
+
+            state.pendingDrawPenalty =0;
+            state.activeStackType = null;
+
+            endTurn();
+
+        }
+
+    }
+
+    /** humanPlayCard() checks if the card is playable and then execute the move.
+     * @param chosenCard
+     */
     public Card getCurrentCard(){
         return new Card(currentColor, currentCard.getType(), currentCard.getValue());
     }
@@ -168,11 +206,17 @@ public class GameEngine {
         view.updateTopCard(currentCard);
 
         Player nextPlayer = state.getNextPlayer();
-        if(chosenCard.getType() == CardType.DRAW_TWO) {
-            forcedToDraw(nextPlayer,2);
-            /*  ATTENZIONE : il giocatore nextPlayer salta il turno */
-            state.nextTurn();
-            endTurn();
+        if (chosenCard.getType() == CardType.DRAW_TWO) {
+            if (settings.stackingEnabled) {
+                state.pendingDrawPenalty += 2;
+                state.activeStackType = CardType.DRAW_TWO;
+            // Il giocatore successivo NON salta subito, toccherà a lui gestire il problema
+                state.nextTurn();
+            } else {
+            // Logica classica UNO
+                forcedToDraw(nextPlayer, 2);
+                state.nextTurn(); // Salta
+            }
         }else if (chosenCard.getType() == CardType.WILD_DRAW){
             chooseColor(Color.BLUE); // placeholder value
             // SLAVA: mi serve un click qui, se il giocatore successivo clicca sulla challenge
@@ -182,6 +226,7 @@ public class GameEngine {
             forcedToDraw(nextPlayer,4);
         }else if(chosenCard.getType() == CardType.SKIP) {
             state.nextTurn();
+            state.nextTurn(); //Real skip qui
         }else if(chosenCard.getType() == CardType.REVERSE){
             state.invertClock();
         }else if(chosenCard.getType() == CardType.WILD_JOLLY){
@@ -358,4 +403,5 @@ public class GameEngine {
         }
         return false;
     }
+
 }
