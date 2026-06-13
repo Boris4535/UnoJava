@@ -101,7 +101,7 @@ public class GameState {
     }
 
     public MatchStats getMatchStats(){
-        return this.getMatchStats();
+        return this.matchStats;
     }
 
     public void reshuffleDiscardIntoDraw(){ drawPile = shuffle(discardPile);}

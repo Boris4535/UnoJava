@@ -123,9 +123,6 @@ public class GameEngine {
 
     }
 
-    /** humanPlayCard() checks if the card is playable and then execute the move.
-     * @param chosenCard
-     */
     public Card getCurrentCard(){
         return new Card(currentColor, currentCard.getType(), currentCard.getValue());
     }
