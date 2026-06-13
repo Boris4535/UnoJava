@@ -5,6 +5,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.control.Button?>
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
             prefHeight="600.0" prefWidth="800.0"
             stylesheets="@Styles.css"
@@ -32,9 +33,13 @@
          <children>
             <Label fx:id="lblMessage" text="STATUS: STANDBY" style="-fx-text-fill: #555555; -fx-font-family: monospace;" />
             <Label fx:id="lblCurrentPlayer" text="ID_ENTITA: NULL" style="-fx-text-fill: #880000; -fx-font-weight: bold; -fx-font-family: monospace;" />
+            <Button fx:id="btnCallUno" text="CHIAMA UNO!" onAction="#onUnoButtonClicked" visible="false" />
             <HBox fx:id="playerHandBox" prefHeight="130.0" alignment="CENTER" />
          </children>
+
       </VBox>
+
+
    </bottom>
 
    <center>
