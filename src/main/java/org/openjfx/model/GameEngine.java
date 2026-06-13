@@ -123,6 +123,9 @@ public class GameEngine {
 
     }
 
+    /** humanPlayCard() checks if the card is playable and then execute the move.
+     * @param chosenCard
+     */
     public Card getCurrentCard(){
         return new Card(currentColor, currentCard.getType(), currentCard.getValue());
     }
@@ -223,6 +226,7 @@ public class GameEngine {
             forcedToDraw(nextPlayer,4);
         }else if(chosenCard.getType() == CardType.SKIP) {
             state.nextTurn();
+            state.nextTurn(); //Real skip qui
         }else if(chosenCard.getType() == CardType.REVERSE){
             state.invertClock();
         }else if(chosenCard.getType() == CardType.WILD_JOLLY){
@@ -311,6 +315,21 @@ public class GameEngine {
                 p.registerMatch(false,0,numPenalties,numChallenges);
             else
                 p.registerMatch(true,winningScore, numPenalties,numChallenges);
+        }
+    }
+
+
+    public void humanCallUno() {
+        Player human = state.getCurrentPlayer();
+
+        if (human instanceof HumanPlayer) {
+            callUno(human);
+
+            if (human.getHasCalledUno()) {
+                view.showMessage(human.getName() + " UNO");
+            } else {
+                view.showMessage("NO UNO");
+            }
         }
     }
 

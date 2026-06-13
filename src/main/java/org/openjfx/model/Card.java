@@ -1,5 +1,7 @@
 package org.openjfx.model;
 
+import java.util.List;
+
 public class Card {
     private Color color;
     private CardType type;

@@ -43,6 +43,15 @@ public class TavoloController implements GameView {
 
     }
 
+    @FXML
+    public void onUnoButtonClicked() {
+        if (engine != null) {
+            engine.humanCallUno();
+
+            btnCallUno.setVisible(false);
+        }
+    }
+
 
     public void setInitialData(MatchSettings settings) {
         System.out.println("Match started with " + settings.Players.size() + " players");

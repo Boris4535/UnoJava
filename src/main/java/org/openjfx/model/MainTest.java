@@ -41,7 +41,7 @@ public class MainTest {
 
             }
         };
-        //GameEngine engine = new GameEngine(new GameState(),mode,view);
+        GameEngine engine = new GameEngine(new GameState(),mode,view);
         lux.receiveCard(new Card(Color.BLUE,CardType.NUMBERS,5));
         lux.receiveCard(new Card(Color.RED,CardType.DRAW_TWO,1));
         lux.receiveCard(new Card(Color.GREEN,CardType.NUMBERS,2));
