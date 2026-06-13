@@ -1,0 +1,3 @@
+--Salvataggi
+--Impostazioni : far funzionare selezione giocatori etc etc. (UI alongside)
+--Disegnare i numeri sulle carte !!! (ongoing)
