@@ -1,11 +1,9 @@
 package org.openjfx.model;
 
-
 import org.openjfx.controller.GameView;
-import org.openjfx.model.GameState;
-import org.openjfx.model.Player;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 public class GameEngine {
@@ -14,6 +12,7 @@ public class GameEngine {
     private GameMode gameMode;
     private GameView view;
     private MatchSettings settings;
+    private GameStats globalStats;
     private final int MIN_PLAYER = 2;
     private final int MAX_PLAYER = 6;
     private Card currentCard;
@@ -27,6 +26,8 @@ public class GameEngine {
         this.gameMode = nGameMode;
         this.view = view;
         this.settings = settings;
+
+        globalStats = new GameStats();
     }
     /** dealHand() distributes a specified number of cards to each player.
      * @param cardsPerPlayer
@@ -48,13 +49,15 @@ public class GameEngine {
      */
     public void startGame() {
 
+        state.getMatchStats().incrementRounds();
+
         prepareDeck();
         dealHand(7);
         // distribuisci carte
 
         currentCard = state.getTopCards(1).pop(); // Prima carta da mettere a terra
         state.discardPile.add(currentCard);    // Aggiungiamo carta a terra
-        currentColor = currentCard.getcolor();
+        currentColor = currentCard.getColor();
 
         view.updateTopCard(currentCard);
         view.showMessage("CE LA FACCIAMOOOOO");
@@ -65,7 +68,9 @@ public class GameEngine {
     }
     /** startTurn() lets the player play
      */
-    public void startTurn() {
+    public void startTurn()
+    {
+        state.getMatchStats().incrementTurns();
         hasDrawnThisTurn = false;
         Player currentPlayer = state.getCurrentPlayer();
 
@@ -90,7 +95,7 @@ public class GameEngine {
 
             view.showMessage(currentPlayer.name + " (Bot) sta calcolando l'entropia");
 
-            executeBotTurn(currentPlayer);
+            executeBotTurn((BotPlayer) currentPlayer);
         }
     }
 
@@ -118,6 +123,12 @@ public class GameEngine {
 
     }
 
+    /** humanPlayCard() checks if the card is playable and then execute the move.
+     * @param chosenCard
+     */
+    public Card getCurrentCard(){
+        return new Card(currentColor, currentCard.getType(), currentCard.getValue());
+    }
 
     public void humanPlayCard(Card chosenCard) {
         Player human = state.getCurrentPlayer();
@@ -125,12 +136,16 @@ public class GameEngine {
         if (!(human instanceof HumanPlayer)) return;
 
         if (chosenCard.isPlayableOn(currentCard) || chosenCard.getcolor() == currentColor) {
+            state.getMatchStats().decrementPointsTo(human,chosenCard);
+      
             executeMove(human, chosenCard);
         } else {
             view.showMessage("Mossa non valida!");
         }
     }
 
+    /** humanDrawCard() checks if drawPile is empty, otherwise lets human draw card.
+     */
     public void humanDrawCard() {
         Player human = state.getCurrentPlayer();
         if (state.drawPile.isEmpty()) state.reshuffleDiscardIntoDraw();
@@ -145,6 +160,11 @@ public class GameEngine {
 
         Card drawn = state.drawPile.pop();
         human.receiveCard(drawn);
+        // incrementa punti a causa della carta che hai pescato
+        state.getMatchStats().incrementPointsTo(human,drawn);
+
+        // avendo preso da terra, la sua condizione di uno si annulla
+        resetUnoCondition(human);
 
         //HO PESCATO
         hasDrawnThisTurn = true;
@@ -163,6 +183,11 @@ public class GameEngine {
 
     }
 
+    /** executeMove() actually plays the card, and evoke its properties if necessary.
+     * It also handles the option to evoke a challenge.
+     * @param player
+     * @param chosenCard
+     */
 
     public void executeMove(Player player, Card chosenCard){
 
@@ -174,7 +199,7 @@ public class GameEngine {
 
         //Aggiorno la carta e la faccio ridisegnare
         currentCard = chosenCard;
-        currentColor = chosenCard.getcolor();
+        currentColor = chosenCard.getColor();
         view.updateTopCard(currentCard);
 
         Player nextPlayer = state.getNextPlayer();
@@ -206,30 +231,97 @@ public class GameEngine {
             chooseColor(Color.BLUE); // placeholder value
         }
 
+        // SE SCHIACCIA IL PULSANTE UNO
+        // SLAVA serve er click -> chiama funzione
+        /* callUno(player) */
+
+        // può anche contestare la mancata chiamata di uno
+        // SLAVA ->
+        /* disputeUnoCall(Player giocatoreDaIncolpare) */
+
         endTurn();
+    }
+
+    public void callUno(Player player){
+        if (canCallUno(player)) {
+            // se il giocatore può chiamare l'uno (quindi se ha una carta in mano)
+            player.setHasCalledUno(true);
+            // altrimenti rimane false di default
+
+            // giocatore successivo nel turno successivo può contesta
+        }else
+            System.out.println("Cazzo fai");
+    }
+
+    public boolean canCallUno(Player player){
+        return player.hasUno();
+    }
+
+    public void resetUnoCondition(Player player){
+        if (!player.hasUno())
+            player.setHasCalledUno(false);
+    }
+
+    public void disputeUnoCall(Player challenged){
+        if (challenged.hasUno() && challenged.getHasCalledUno())
+            System.out.println(challenged + " ha chiamato correttamente uno");
+            // SLAVA: view per mostrare che aveva torto il giocatore chiamante
+        else if(challenged.hasUno() && !challenged.getHasCalledUno())
+            forcedToDraw(challenged,2);
+            // SLAVA: view puniscilo!!!
 
     }
 
+    /** endTurn() checks if the match is over (according to whether it's a classic match or scoreBased).
+     *  If that is not the case, it lets the game continue.
+     */
     public void endTurn() {
-        //Controllo se ci sono vincitori
-        if (gameMode.isMatchOver(state.getCurrentPlayer())) {
-            view.showMessage("È FINITA! Ha vinto " + state.getCurrentPlayer().name);
-            return;
-        }
+        if (state.getCurrentPlayer().getHandSize() == 0) {
 
+            if (gameMode.isMatchOver(state)) {
+                view.showMessage("È FINITA! Ha vinto " + state.getCurrentPlayer().getName());
+
+                saveStatsForAllPLayers();
+                globalStats.registerMatch(state.getMatchStats());
+                return;
+            }else{
+                // Caso in cui possiamo cadere solo nello ScoredBased,perché magari qualcuno
+                // ha vinto l'uno ma non è ancora arrivato al punteggio...
+                startGame(); // ricomincia e rimescola
+                return;
+            }
+
+        }
         // Passa al prossimo e riavvia il loop
         state.nextTurn();
         startTurn();
     }
 
-    public void executeBotTurn(Player bot) {
-        // Anche mr Bot ora cerca le carte!
-        for (Card c : bot.getHand()) {
-            if (c.isPlayableOn(currentCard) || c.getcolor() == currentColor) {
-                executeMove(bot, c);
-                return; // Ha giocato, fine del suo turno
-            }
+    public void saveStatsForAllPLayers(){
+        int winningScore = state.getMatchStats().getPointsFromAllPlayers();
+        Player winner = state.getCurrentPlayer();
+
+        Map<Player,Integer> playerPenalties = state.getMatchStats().getPenaltiesPerPlayer();
+        Map<Player,Integer> playerChallenges = state.getMatchStats().getPenaltiesPerPlayer();
+
+        for(Player p : state.players){
+            int numPenalties = playerPenalties.get(p);
+            int numChallenges = playerChallenges.get(p);
+
+            if(!p.equals(winner))
+                p.registerMatch(false,0,numPenalties,numChallenges);
+            else
+                p.registerMatch(true,winningScore, numPenalties,numChallenges);
         }
+    }
+
+
+    public void executeBotTurn(BotPlayer bot) {
+        //Picks a card based on its personality
+        Card chosen = bot.BotPlays(getCurrentCard());
+
+        //Only plays a card if it can do so
+        if(chosen != null) executeMove(bot, chosen);
 
         // Se non ha trovato niente, pesca una carta
         if (state.drawPile.isEmpty()) state.reshuffleDiscardIntoDraw();
@@ -237,7 +329,7 @@ public class GameEngine {
         bot.receiveCard(drawn);
 
         // Controlla se la carta appena pescata (o le altre) sono giocabili ora
-        if (drawn.isPlayableOn(currentCard) || drawn.getcolor() == currentColor) {
+        if (drawn.isPlayableOn(currentCard) || drawn.getColor() == currentColor) {
             executeMove(bot, drawn);
         } else {
             // Niente da fare, passa il turno
@@ -245,6 +337,9 @@ public class GameEngine {
         }
     }
 
+    /** chooseColor() sets given color as the current playable color.
+     * @param newColor
+     */
     public void chooseColor(Color newColor){
         this.currentColor = newColor;
     }
@@ -256,7 +351,7 @@ public class GameEngine {
      */
     public boolean checkHand(List<Card> handToCheck){
         for(Card card : handToCheck){
-            if(card.getcolor() == currentCard.getcolor())
+            if(card.getColor() == currentCard.getColor())
                 return true;
         }
         return false;
@@ -285,14 +380,18 @@ public class GameEngine {
     public void forcedToDraw(Player player, int amountCards){
         Stack<Card> penaltyStack = state.getTopCards(amountCards);
         for(int i = 0; i < amountCards; i++){
-            player.receiveCard(penaltyStack.get(i));
+            Card penaltyCard = penaltyStack.get(i);
+            player.receiveCard(penaltyCard);
+            state.getMatchStats().incrementPointsTo(player,penaltyCard);
         }
+        state.getMatchStats().incrementPenalties(player);
+        resetUnoCondition(player);
     }
 
     //Controlla se ci sono carte giocabili
     public boolean hasPlayableCards(Player player) {
         for (Card c : player.getHand()) {
-            if (c.isPlayableOn(currentCard) || c.getcolor() == currentColor) {
+            if (c.isPlayableOn(currentCard) || c.getColor() == currentColor) {
                 return true;
             }
         }

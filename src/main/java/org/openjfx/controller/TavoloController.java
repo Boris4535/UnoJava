@@ -117,7 +117,7 @@ public class TavoloController implements GameView {
         rect.setStrokeWidth(4);
         rect.setStrokeType(javafx.scene.shape.StrokeType.INSIDE);
 
-        switch (card.getcolor()) {
+        switch (card.getColor()) {
             case RED -> rect.setFill(Color.web("#d12a2a"));
             case BLUE -> rect.setFill(Color.web("#2a6cd1"));
             case GREEN -> rect.setFill(Color.web("#2ad14b"));

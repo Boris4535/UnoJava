@@ -1,6 +1,34 @@
 Da fare per i non madrelingua >-<
 - Implementare chiamata uno;
 - Implementare punteggi (e di conseguenza check su ScoreBasedGame);
+Nella modalità partita singola, il gioco è composto da un solo round.
+Vince il primo giocatore che termina le carte nella propria mano.
+In questa modalità non è necessario accumulare punti su più round,
+ma il programma deve comunque poter calcolare e
+mostrare il punteggio ottenuto dal vincitore del round,
+secondo le regole di conteggio:
+Alla fine di ogni round, il punteggio del round viene calcolato sommando
+il valore delle carte rimaste nelle mani dei giocatori
+che non hanno terminato le carte.
+Tale punteggio viene assegnato al vincitore del round.
+In modalità partita singola, il punteggio calcolato a
+fine round può essere mostrato come risultato della partita,
+ma il vincitore è semplicemente il giocatore che ha terminato
+per primo le proprie carte.
+
+Nella modalità partita a punti, il gioco è composto da più round.
+Al termine di ogni round, il vincitore del round ottiene un punteggio pari
+alla somma dei valori delle carte rimaste nelle mani degli altri giocatori.
+I punti ottenuti nei diversi round vengono accumulati.
+Vince la partita il primo giocatore che raggiunge o
+supera la soglia di vittoria configurata.
+La soglia di vittoria predefinita per la partita a punti è 500 punti,
+ma deve essere configurabile.
+La modalità di partita deve essere selezionabile nella configurazione iniziale
+del gioco.
+
+
+
 - Bot (me e leeeon);
 - Fai in modo che chooseColor() venga scelto se: la challenge non è attivata ||
 se è attivata dal vincitore;
