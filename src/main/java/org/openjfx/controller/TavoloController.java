@@ -2,6 +2,7 @@ package org.openjfx.controller;
 
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -11,7 +12,10 @@ import org.openjfx.model.*;
 import javafx.animation.Animation;
 import javafx.animation.RotateTransition;
 import javafx.animation.ScaleTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;  //Rimuovo i non usati post testing
 import javafx.util.Duration;
+import javafx.scene.effect.DropShadow;
 
 import java.util.List;
 
@@ -21,11 +25,14 @@ public class TavoloController implements GameView {
     @FXML private StackPane tableArea;
     @FXML private Label lblMessage;
     @FXML private Label lblCurrentPlayer;
+    @FXML private Button btnCallUno;
 
     //Stavo facendo dei test, maybe will use later
     @FXML private Label faceTop;
     @FXML private Label faceLeft;
     @FXML private Label faceRight;
+
+
 
     private GameEngine engine;
 
@@ -35,6 +42,7 @@ public class TavoloController implements GameView {
 
 
     }
+
 
     public void setInitialData(MatchSettings settings) {
         System.out.println("Match started with " + settings.Players.size() + " players");
@@ -47,7 +55,7 @@ public class TavoloController implements GameView {
         GameMode mode = settings.PointsBasedGame ? new ScoreBasedGame() : new ClassicGame();
 
         // Creiamo l'engine passando lo stato, la modalità e questa view
-        this.engine = new GameEngine(gameState, mode, this);
+        this.engine = new GameEngine(gameState, mode, this, settings);
         engine.startGame();
     }
 
@@ -98,7 +106,7 @@ public class TavoloController implements GameView {
         }
     }
 
-    // ----------------------------------
+    // ----------------------------------L'ARTE------------------------//
 
     private StackPane createCardNode(Card card) {
         StackPane pane = new StackPane();
@@ -115,7 +123,14 @@ public class TavoloController implements GameView {
             case GREEN -> rect.setFill(Color.web("#2ad14b"));
             case YELLOW -> rect.setFill(Color.web("#f0c816"));
             case WILD -> rect.setFill(Color.web("#8b008b"));
+
+
         }
+        DropShadow glow = new DropShadow();
+        glow.setColor(Color.web("#00ff00"));
+        glow.setRadius(20);
+        glow.setSpread(0.8);
+        rect.setEffect(glow);
 
         javafx.scene.text.Text text = new javafx.scene.text.Text();
         text.setFont(javafx.scene.text.Font.font("Impact", javafx.scene.text.FontWeight.BOLD, 32));
@@ -123,7 +138,7 @@ public class TavoloController implements GameView {
         text.setStroke(Color.BLACK);
         text.setStrokeWidth(1.5);
 
-        // Twxto
+        // Texto
         switch(card.getType()) {
             case NUMBERS -> text.setText(String.valueOf(card.getValue()));
             case SKIP -> text.setText("Ø");
@@ -159,3 +174,4 @@ public class TavoloController implements GameView {
         tableArea.getChildren().add(deck);
     }
 }
+

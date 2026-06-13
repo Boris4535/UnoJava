@@ -14,6 +14,8 @@ public class GameState {
     public int currentPlayerIndex;
     public Color currentColor;
     public boolean clockwisePhase = true;
+    public int pendingDrawPenalty = 0;
+    public CardType activeStackType = null;
 
     public GameState() {
         initDrawPile();
