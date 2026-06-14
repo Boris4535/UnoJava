@@ -3,19 +3,34 @@ package org.openjfx.model;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Extends Player and has a personality attribute and methods that allow bots to choose a card
+ * @author leon445
+ */
 public class BotPlayer extends Player {
 
     private BotType personality;
     private Random random = new Random();
 
+    /** Initializes the bot player with his personality
+     * @param personality
+     */
     public BotPlayer(BotType personality){
         this.personality = personality;
     }
 
+    /**
+     * Calls the corresponding method based on the assigned Bot personality
+     * Stupid selects a random card
+     * Clever uses a priority list
+     * Cheeky decides based on the current card on the discard pile
+     * @param current the top card of the discard pile
+     * @return chosenCard
+     */
     public Card BotPlays(Card current){
         List<Card> playable = getHand().stream().filter(c -> c.isPlayableOn(current)).toList();
         if(playable.isEmpty()) return null;
-        if(playable.size() == 1) return playable.get(0);
+        if(playable.size() == 1) return playable.getFirst();
         return switch(personality){
             case STUPID -> StupidPlay(playable);
             case CLEVER -> CleverPlay(playable);
@@ -50,11 +65,13 @@ public class BotPlayer extends Player {
         else{
             for(Card c: hand)
                 if(c.getColor() != current.getColor() &&
-                        (currentType == CardType.NUMBERS) && c.getType() == CardType.NUMBERS) return c;
+                        (currentType == CardType.NUMBERS && c.getType() == CardType.NUMBERS) &&
+                        current.getValue() == c.getValue()) return c;
         }
         //If all else fails, pick a numbered card
-        return hand.get(types.indexOf(1));
-
+        if(types.contains(1)) return hand.get(types.indexOf(1));
+        // If that  doesn't work either
+        else return hand.getFirst();
     }
 
     //Picks a card based on a priority list which can later be altered if needed

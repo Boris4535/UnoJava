@@ -9,4 +9,8 @@ public interface GameView {
     void updatePlayerHand(List<Card> hand);
     void showMessage(String msg);
     void onTurnChanged(Player currentPlayer);
+
+    boolean askForChallenge(String challengerName, String victimName);
+
+    org.openjfx.model.Color chooseWildColor();
 }

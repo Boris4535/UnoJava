@@ -2,6 +2,10 @@ package org.openjfx.model;
 
 import java.util.List;
 
+/**
+ * Defines a single card and its properties, and a method to check if it is playable
+ * @author leon445
+ */
 public class Card {
     private Color color;
     private CardType type;
@@ -22,18 +26,19 @@ public class Card {
     public CardType getType(){return this.type;}
 
 
-
-    /* momento debugging
-    * il metodo prcedente, era quasi giusto, l'unica nueance è che il metodo controlla sempre se alla fine
-    * il type è giusto, dato che due carte number hanno sempre il type numbbers, allora puoi giocare un 6 rosso su un 7 blu
-    * */
+    /**
+     * Checks if the card is playable on top of the card passed by the parameter, usually
+     * card atop the discard pile.
+     * @param topCard the card that is being checked with
+     * @return isPlayable
+     */
     public boolean isPlayableOn(Card topCard){
         //Carte wild
         if (this.color == Color.WILD) {
             return true;
         }
 
-        //Colori
+        //Colori, controllo sia per i numeri che per le speciali
         if (this.color == topCard.getColor()) {
             return true;
         }
@@ -41,19 +46,10 @@ public class Card {
         if (this.type == CardType.NUMBERS && topCard.getType() == CardType.NUMBERS) {
             return this.value == topCard.getValue();
         }
-        //Speciali
-        if (this.type != CardType.NUMBERS && this.type == topCard.getType()) {
-            return true;
-        }
 
         //ILLEGALI
         return false;
 
-
-        /*return this.color == topCard.color ||
-                this.color == Color.WILD ||
-                this.value == topCard.value ||
-                this.type == topCard.type; */
     }
 
 }
