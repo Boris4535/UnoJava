@@ -62,6 +62,7 @@ public class GameStats {
         return (numNumOfTurns == 0) ? 0.0 : (double) numNumOfTurns / numOfRounds;
     }
 
+
     public int getNumOfChallenges() {
         return numOfChallenges;
     }

@@ -2,12 +2,16 @@
 /* Yep this is the gorbino's quest, the gorbino's quest of card games */
 
 .root {
-    -fx-background-color: #0d0d0d;
-    -fx-background-image:
-    repeating-linear-gradient(135deg, #ff00ff 0px, #ff00ff 5px, transparent 5px, transparent 10px),
-    repeating-linear-gradient(45deg, #00ff00 0px, #00ff00 10px, #000000 10px, #000000 20px);
+    -fx-background-color: #2b003b;
 
-    -fx-font-family: "Comic Sans MS", "Impact";
+    -fx-background-image: repeating-linear-gradient(
+            to bottom,
+            transparent,
+            transparent 2px,
+            rgba(255, 0, 255, 0.1) 2px,
+            rgba(255, 0, 255, 0.1) 4px
+    );
+    -fx-font-family: "Monospaced", monospace;
 }
 
 
@@ -55,28 +59,21 @@
 }
 
 .button {
-    -fx-background-color: #ff00ff;
+    -fx-background-color: #000000;
     -fx-border-color: #00ff00;
-    -fx-border-width: 5px;
-    -fx-border-style: dashed;
-    -fx-text-fill: #ffff00;
-    -fx-font-size: 20px;
-    -fx-font-weight: bold;
-    -fx-padding: 12 18;
-    -fx-background-radius: 0;
-    -fx-border-radius: 0;
-    -fx-cursor: crosshair;
-    -fx-effect: dropshadow(one-pass-box, #ff0000, 0, 0, 8, 8);
+    -fx-border-width: 2px;
+    -fx-border-style: solid;
+    -fx-text-fill: #00ff00;
+    -fx-font-size: 18px;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
 }
 
 .button:hover {
-    -fx-background-color: #00ffff;
-    -fx-text-fill: #ff0000;
+    -fx-background-color: #00ff00;
+    -fx-text-fill: #000000;
     -fx-border-color: #ff00ff;
-    -fx-border-style: dotted;
-    -fx-translate-x: 4px;
-    -fx-translate-y: -4px;
-    -fx-effect: dropshadow(one-pass-box, #00ff00, 0, 0, -8, 8);
+    -fx-effect: dropshadow(two-pass-box, #00ff00, 10, 0, 0, 0);
 }
 
 .button:pressed {

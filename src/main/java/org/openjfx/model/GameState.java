@@ -128,7 +128,8 @@ public class GameState {
         if (nCards > drawPile.size()) throw new IndexOutOfBoundsException();
 
         Stack<Card> temp = new Stack<Card>();
-        for(int i = 0; i < nCards;i++){
+        for(int i = 0; i < nCards;i++){//FIX: In caso il mazzo sia vuoto
+            if(drawPile.isEmpty()) reshuffleDiscardIntoDraw();
             temp.add(drawPile.pop());
         }
         return temp;

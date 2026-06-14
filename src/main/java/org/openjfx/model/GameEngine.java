@@ -69,6 +69,8 @@ public class GameEngine {
      */
     public void startGame() {
 
+        //state.matchStats = new MatchStats(state.players);
+
         state.getMatchStats().incrementRounds();
 
         prepareDeck();
@@ -111,10 +113,10 @@ public class GameEngine {
             //intanto si aspetta er click
 
             view.updatePlayerHand(currentPlayer.getHand());
-            view.showMessage("È il tuo turno, " + currentPlayer.name);
+            view.showMessage("È il tuo turno, " + currentPlayer.getName());
         } else {
 
-            view.showMessage(currentPlayer.name + " (Bot) sta calcolando l'entropia");
+            view.showMessage(currentPlayer.getName() + " (Bot) sta calcolando l'entropia");
 
             executeBotTurn((BotPlayer) currentPlayer);
         }
@@ -218,7 +220,9 @@ public class GameEngine {
      * @param player
      * @param chosenCard
      */
+
     public void executeMove(Player player, Card chosenCard){
+        Color colorBeforePlay = currentColor;
 
         // cancelliamo carta dal mazzo
         player.removeCard(chosenCard);
@@ -238,26 +242,47 @@ public class GameEngine {
                 state.activeStackType = CardType.DRAW_TWO;
             // Il giocatore successivo NON salta subito, toccherà a lui gestire il problema
                 state.nextTurn();
+                startTurn();
+                return;
             } else {
             // Logica classica UNO
                 forcedToDraw(nextPlayer, 2);
                 state.nextTurn(); // Salta
             }
-        }else if (chosenCard.getType() == CardType.WILD_DRAW){
-            chooseColor(Color.BLUE); // placeholder value
-            // SLAVA: mi serve un click qui, se il giocatore successivo clicca sulla challenge
-            // if
-                evokeChallenge(nextPlayer, state.getCurrentPlayer());
-            // else
-            forcedToDraw(nextPlayer,4);
+        } else if (chosenCard.getType() == CardType.WILD_DRAW) {
+            // SCELTA COLORE
+            if (player instanceof HumanPlayer) {
+                chooseColor(view.chooseWildColor());
+            } else {
+                chooseColor(Color.RED); // Per ora il bot sceglie rosso fisso
+            }
+            boolean wantsToChallenge = false;
+            if (nextPlayer instanceof HumanPlayer) {
+                wantsToChallenge = view.askForChallenge(player.getName(), nextPlayer.getName());
+            } else {
+                // Per ora i Bot non contestano mai. Lo faranno nella versione definitiva.
+                wantsToChallenge = false;
+            }
+
+            if (wantsToChallenge) {
+                evokeChallenge(player, nextPlayer, colorBeforePlay); // player=chi ha lanciato, nextPlayer=chi subisce
+            } else {
+                forcedToDraw(nextPlayer, 4);
+            }
+            state.nextTurn();
         }else if(chosenCard.getType() == CardType.SKIP) {
             state.nextTurn();
             state.nextTurn(); //Real skip qui
         }else if(chosenCard.getType() == CardType.REVERSE){
             state.invertClock();
-        }else if(chosenCard.getType() == CardType.WILD_JOLLY){
-            // SLAVA: mi serve il click qui
-            chooseColor(Color.BLUE); // placeholder value
+
+        } else if (chosenCard.getType() == CardType.WILD_JOLLY) {
+            // SCELTA COLORE
+            if (player instanceof HumanPlayer) {
+                chooseColor(view.chooseWildColor());
+            } else {
+                chooseColor(Color.RED); // Bot sceglie rosso
+            }
         }
 
         // SE SCHIACCIA IL PULSANTE UNO
@@ -317,6 +342,7 @@ public class GameEngine {
             forcedToDraw(challenged, 2);
         }
             // SLAVA: view puniscilo!!!
+
     }
 
     /** checks if the match is over (according to whether it's a classic match or scoreBased).
@@ -401,22 +427,21 @@ public class GameEngine {
      * @param bot
      */
     public void executeBotTurn(BotPlayer bot) {
-        //Picks a card based on its personality
         Card chosen = bot.BotPlays(getCurrentCard());
 
-        //Only plays a card if it can do so
-        if(chosen != null) executeMove(bot, chosen);
+        if (chosen != null) {
+            executeMove(bot, chosen);
+            return;
+        }
 
-        // Se non ha trovato niente, pesca una carta
+        // Se arriva qui significa che non aveva carte giocabili
         if (state.drawPile.isEmpty()) state.reshuffleDiscardIntoDraw();
         Card drawn = state.drawPile.pop();
         bot.receiveCard(drawn);
 
-        // Controlla se la carta appena pescata (o le altre) sono giocabili ora
         if (drawn.isPlayableOn(currentCard) || drawn.getColor() == currentColor) {
             executeMove(bot, drawn);
         } else {
-            // Niente da fare, passa il turno
             endTurn();
         }
     }
@@ -449,15 +474,26 @@ public class GameEngine {
      * @param challenger the player who accuses
      * @param challenged the accused
      */
-    public void evokeChallenge(Player challenger, Player challenged){
+    public void evokeChallenge(Player challenger, Player challenged, Color previousColor){
         List<Card> handToCheck = challenged.getHand();
-        if(checkHand(handToCheck))
-            forcedToDraw(challenged,4);
-        else
-            forcedToDraw(challenger,6);
+        if(checkHand(handToCheck, previousColor)) {
+            view.showMessage("Challenge Vinto! " + challenged.getName() + " aveva il colore " + previousColor + "!");
+            forcedToDraw(challenged, 4);
+        } else {
+            view.showMessage("Challenge Fallito! " + challenger.getName() + " pesca 6 carte!");
+            forcedToDraw(challenger, 6);
+        }
 
         state.getMatchStats().incrementChallenges(challenger);
         state.getMatchStats().incrementChallenges(challenged);
+    }
+
+    public boolean checkHand(List<Card> handToCheck, Color previousColor){
+        for(Card card : handToCheck){
+            if(card.getColor() == previousColor)
+                return true;
+        }
+        return false;
     }
 
     /** dds a specified amount of cards to the hand of a specific player, often as a result of a penalty.
