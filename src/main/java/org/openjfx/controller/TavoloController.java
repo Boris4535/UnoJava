@@ -16,8 +16,14 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;  //Rimuovo i non usati post testing
 import javafx.util.Duration;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.control.ChoiceDialog;
+import java.util.Arrays;
+import java.util.Optional;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 
 import java.util.List;
+
 
 public class TavoloController implements GameView {
 
@@ -109,10 +115,48 @@ public class TavoloController implements GameView {
         }
     }
 
+    @Override
+    public org.openjfx.model.Color chooseWildColor() {
+        // Opzioni da mostrare
+        List<String> choices = Arrays.asList("ROSSO", "BLU", "VERDE", "GIALLO");
+
+        ChoiceDialog<String> dialog = new ChoiceDialog<>("ROSSO", choices);
+        dialog.setTitle("Cambio Colore");
+        dialog.setHeaderText("Hai giocato una carta Wild!");
+        dialog.setContentText("Scegli il nuovo colore:");
+
+        // showAndWait() blocca il gioco finché l'utente non sceglie!
+        Optional<String> result = dialog.showAndWait();
+
+        if (result.isPresent()){
+            switch(result.get()){
+                case "ROSSO": return org.openjfx.model.Color.RED;
+                case "BLU": return org.openjfx.model.Color.BLUE;
+                case "VERDE": return org.openjfx.model.Color.GREEN;
+                case "GIALLO": return org.openjfx.model.Color.YELLOW;
+            }
+        }
+        return org.openjfx.model.Color.RED; // Fallback di sicurezza
+    }
     private void onDeckClicked() {
         if (engine != null) {
             engine.humanDrawCard();
         }
+    }
+
+    @Override
+    public boolean askForChallenge(String challengerName, String victimName) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Challenge +4!");
+        alert.setHeaderText(challengerName + " ti ha appena tirato un +4!");
+        alert.setContentText("Vuoi contestare la giocata? Se " + challengerName + " ha una carta dello stesso colore di prima in mano, pesca lui 4 carte. Se ti sbagli, ne peschi 6 tu!");
+
+        ButtonType btnYes = new ButtonType("Contesta!");
+        ButtonType btnNo = new ButtonType("Accetta Penalità");
+        alert.getButtonTypes().setAll(btnYes, btnNo);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == btnYes;
     }
 
     // ----------------------------------L'ARTE------------------------//

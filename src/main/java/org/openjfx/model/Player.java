@@ -20,7 +20,7 @@ public abstract class Player {
 
     public PlayerStats getStats(){ return this.playerStats; }
     public void registerMatch(boolean hasWon, int winningScore, int numPenalties, int numChallanges){
-        this.getStats().registerMatch(hasWon,winningScore,numPenalties,numPenalties);
+        this.getStats().registerMatch(hasWon,winningScore,numPenalties,numChallanges); //FIX: typo?
     }
 
     public void initiateHand(Stack<Card> cards){
