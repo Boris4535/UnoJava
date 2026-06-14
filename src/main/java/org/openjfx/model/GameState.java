@@ -16,7 +16,7 @@ public class GameState {
     public boolean clockwisePhase = true;
     public int pendingDrawPenalty = 0;
     public CardType activeStackType = null;
-    private MatchStats matchStats; // tiene le statistiche di ogni singola partita
+    MatchStats matchStats; // tiene le statistiche di ogni singola partita
 
     public GameState() {
         initDrawPile();
@@ -94,8 +94,9 @@ public class GameState {
 
     public Stack<Card> getTopCards(int cards){
         Stack<Card> temp = new Stack<Card>();
-        for(int i = 0; i < cards;i++){
-        temp.add(drawPile.pop());
+        for(int i = 0; i < cards;i++){ //FIX: In caso il mazzo sia vuoto
+            if(drawPile.isEmpty()) reshuffleDiscardIntoDraw();
+            temp.add(drawPile.pop());
         }
         return temp;
     }

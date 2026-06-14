@@ -3,7 +3,7 @@ package org.openjfx.model;
 import java.util.*;
 
 public abstract class Player {
-    private String name;
+    public String name;
     private List<Card> hand = new LinkedList<>();
     private boolean hasCalledUno = false;
     private PlayerStats playerStats = new PlayerStats();

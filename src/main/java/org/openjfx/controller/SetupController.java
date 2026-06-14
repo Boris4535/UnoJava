@@ -8,9 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.openjfx.App;
-import org.openjfx.model.HumanPlayer;
-import org.openjfx.model.MatchSettings;
-import org.openjfx.model.Player;
+import org.openjfx.model.*;
 
 public class SetupController {
     @FXML private ToggleButton togglePunti;
@@ -80,7 +78,14 @@ public class SetupController {
             if (nome.isEmpty()) nome = "Giocatore " + (players.size() + 1);
 
             players.add(new HumanPlayer(nome));
-            //Bot player lo aggiungo dopo che LUCIA aggiunge ir suo
+            if (tipo.equals("Bot")) {
+                // Per ora mettiamo STUPID di default, poi se vuoi puoi aggiungere una ComboBox per la difficoltà
+                BotPlayer bot = new BotPlayer(BotType.STUPID);
+                bot.setName(nome + " [BOT]");
+                players.add(bot);
+            } else {
+                players.add(new HumanPlayer(nome));
+            }
         }
         return players;
     }
