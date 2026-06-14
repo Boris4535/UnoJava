@@ -122,8 +122,8 @@ public class GameEngine {
         }
     }
 
-    /**
-     *
+    /** checks if a player can respond to a stacking card.
+     * In any way, the view shows the outcome.
      * @param currentPlayer
      */
     private void handleStackingPhase(Player currentPlayer) {
