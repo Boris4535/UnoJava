@@ -90,10 +90,10 @@ public class GameEngine {
             //intanto si aspetta er click
 
             view.updatePlayerHand(currentPlayer.getHand());
-            view.showMessage("È il tuo turno, " + currentPlayer.name);
+            view.showMessage("È il tuo turno, " + currentPlayer.getName());
         } else {
 
-            view.showMessage(currentPlayer.name + " (Bot) sta calcolando l'entropia");
+            view.showMessage(currentPlayer.getName() + " (Bot) sta calcolando l'entropia");
 
             executeBotTurn((BotPlayer) currentPlayer);
         }

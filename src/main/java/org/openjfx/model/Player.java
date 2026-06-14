@@ -19,7 +19,7 @@ public abstract class Player {
     public void setHasCalledUno(boolean bool) { this.hasCalledUno = bool; }
 
     public PlayerStats getStats(){ return this.playerStats; }
-    public void registerMatch(boolean hasWon, int winningScore, int numPenalties, int numChallanges){
+    public void registerMatch(boolean hasWon, int winningScore, int numPenalties, int numChallenges){
         this.getStats().registerMatch(hasWon,winningScore,numPenalties,numPenalties);
     }
 
