@@ -19,8 +19,8 @@ public abstract class Player {
     public void setHasCalledUno(boolean bool) { this.hasCalledUno = bool; }
 
     public PlayerStats getStats(){ return this.playerStats; }
-    public void registerMatch(boolean hasWon, int winningScore, int numPenalties, int numChallanges){
-        this.getStats().registerMatch(hasWon,winningScore,numPenalties,numChallanges); //FIX: typo?
+    public void registerMatch(boolean hasWon, int winningScore, int numPenalties, int numChallenges){
+        this.getStats().registerMatch(hasWon,winningScore,numPenalties,numPenalties);
     }
 
     public void initiateHand(Stack<Card> cards){
