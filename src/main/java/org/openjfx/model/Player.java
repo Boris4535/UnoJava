@@ -2,6 +2,10 @@ package org.openjfx.model;
 
 import java.util.*;
 
+/**
+ * Defines the player class, complete with name, stats and hand
+ * @author leon445
+ */
 public abstract class Player {
     public String name;
     private List<Card> hand = new LinkedList<>();
@@ -23,6 +27,10 @@ public abstract class Player {
         this.getStats().registerMatch(hasWon,winningScore,numPenalties,numPenalties);
     }
 
+    /**
+     * Gives the starting hand to the player
+     * @param cards cards take from the initialized draw pile
+     */
     public void initiateHand(Stack<Card> cards){
         hand = new LinkedList<>();
         hand.addAll(cards);
