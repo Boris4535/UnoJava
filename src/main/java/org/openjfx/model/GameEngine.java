@@ -72,10 +72,10 @@ public class GameEngine {
             //intanto si aspetta er click
 
             view.updatePlayerHand(currentPlayer.getHand());
-            view.showMessage("È il tuo turno, " + currentPlayer.name);
+            view.showMessage("È il tuo turno, " + currentPlayer.getName());
         } else {
 
-            view.showMessage(currentPlayer.name + " (Bot) sta calcolando l'entropua");
+            view.showMessage(currentPlayer.getName() + " (Bot) sta calcolando l'entropua");
 
             executeBotTurn((BotPlayer) currentPlayer);
         }
@@ -172,7 +172,7 @@ public class GameEngine {
     public void endTurn() {
         //Controllo se ci sono vincitori
         if (gameMode.isMatchOver(state.getCurrentPlayer())) {
-            view.showMessage("È FINITA! Ha vinto " + state.getCurrentPlayer().name);
+            view.showMessage("È FINITA! Ha vinto " + state.getCurrentPlayer().getName());
             return;
         }
 

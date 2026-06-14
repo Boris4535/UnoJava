@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Stack;
 
 public abstract class Player {
-    public String name;
+    private String name;
     private List<Card> hand = new LinkedList<>();
     private HashMap<CardType, Integer> points;
 
