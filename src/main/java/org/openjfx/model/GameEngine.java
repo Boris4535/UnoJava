@@ -1,9 +1,9 @@
 package org.openjfx.model;
 
-
 import org.openjfx.controller.GameView;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 public class GameEngine {
@@ -11,16 +11,23 @@ public class GameEngine {
     private GameState state;
     private GameMode gameMode;
     private GameView view;
+    private MatchSettings settings;
+    private GameStats globalStats;
     private final int MIN_PLAYER = 2;
     private final int MAX_PLAYER = 6;
     private Card currentCard;
     private Color currentColor;
     private boolean hasDrawnThisTurn = false;
+    private int pendingDrawPenalty = 0;
+    private boolean hasDeclaredUno = false;
 
-    public GameEngine(GameState nState, GameMode nGameMode, GameView view) {
+    public GameEngine(GameState nState, GameMode nGameMode, GameView view, MatchSettings settings) {
         this.state = nState;
         this.gameMode = nGameMode;
         this.view = view;
+        this.settings = settings;
+
+        globalStats = new GameStats();
     }
     /** dealHand() distributes a specified number of cards to each player.
      * @param cardsPerPlayer
@@ -42,6 +49,8 @@ public class GameEngine {
      */
     public void startGame() {
 
+        state.getMatchStats().incrementRounds();
+
         prepareDeck();
         dealHand(7);
         // distribuisci carte
@@ -59,11 +68,20 @@ public class GameEngine {
     }
     /** startTurn() lets the player play
      */
-    public void startTurn() {
+    public void startTurn()
+    {
+        state.getMatchStats().incrementTurns();
         hasDrawnThisTurn = false;
-
         Player currentPlayer = state.getCurrentPlayer();
+
+        //Controllo se c'è lo stacking all'inizio
+
         view.onTurnChanged(currentPlayer);
+
+        if (state.pendingDrawPenalty > 0) {
+            handleStackingPhase(currentPlayer);
+            return; // Fermiamo l'esecuzione normale del turno
+        }
 
         if (currentPlayer instanceof HumanPlayer) {
             view.updatePlayerHand(currentPlayer.getHand());
@@ -72,31 +90,65 @@ public class GameEngine {
             //intanto si aspetta er click
 
             view.updatePlayerHand(currentPlayer.getHand());
-            view.showMessage("È il tuo turno, " + currentPlayer.getName());
+            view.showMessage("È il tuo turno, " + currentPlayer.name);
         } else {
 
-            view.showMessage(currentPlayer.getName() + " (Bot) sta calcolando l'entropua");
+            view.showMessage(currentPlayer.name + " (Bot) sta calcolando l'entropia");
 
             executeBotTurn((BotPlayer) currentPlayer);
         }
     }
 
+    private void handleStackingPhase(Player currentPlayer) {
+        boolean canDefend = false;
+
+        for (Card c : currentPlayer.getHand()){
+            if (c.getType() == state.activeStackType){
+                canDefend = true;
+                break;
+            }
+        }
+
+        if(canDefend) {
+            view.showMessage(currentPlayer.getName() + "C'è uno stack");
+        }else{
+            view.showMessage(currentPlayer.getName() + "Sei stato tutto stackkato");
+
+            state.pendingDrawPenalty =0;
+            state.activeStackType = null;
+
+            endTurn();
+
+        }
+
+    }
+
+    /** humanPlayCard() checks if the card is playable and then execute the move.
+     * @param chosenCard
+     */
     public Card getCurrentCard(){
         return new Card(currentColor, currentCard.getType(), currentCard.getValue());
     }
 
+    /** humanPlayCard() checks if the card is playable and then execute the move.
+     * @param chosenCard
+     */
     public void humanPlayCard(Card chosenCard) {
         Player human = state.getCurrentPlayer();
 
         if (!(human instanceof HumanPlayer)) return;
 
         if (chosenCard.isPlayableOn(currentCard) || chosenCard.getColor() == currentColor) {
+            state.getMatchStats().decrementPointsTo(human,chosenCard);
+      
             executeMove(human, chosenCard);
         } else {
             view.showMessage("Mossa non valida!");
         }
     }
 
+    /** humanDrawCard() checks if drawPile is empty, otherwise lets human draw card.
+     */
     public void humanDrawCard() {
         Player human = state.getCurrentPlayer();
         if (state.drawPile.isEmpty()) state.reshuffleDiscardIntoDraw();
@@ -111,6 +163,11 @@ public class GameEngine {
 
         Card drawn = state.drawPile.pop();
         human.receiveCard(drawn);
+        // incrementa punti a causa della carta che hai pescato
+        state.getMatchStats().incrementPointsTo(human,drawn);
+
+        // avendo preso da terra, la sua condizione di uno si annulla
+        resetUnoCondition(human);
 
         //HO PESCATO
         hasDrawnThisTurn = true;
@@ -129,6 +186,11 @@ public class GameEngine {
 
     }
 
+    /** executeMove() actually plays the card, and evoke its properties if necessary.
+     * It also handles the option to evoke a challenge.
+     * @param player
+     * @param chosenCard
+     */
 
     public void executeMove(Player player, Card chosenCard){
 
@@ -144,11 +206,17 @@ public class GameEngine {
         view.updateTopCard(currentCard);
 
         Player nextPlayer = state.getNextPlayer();
-        if(chosenCard.getType() == CardType.DRAW_TWO) {
-            forcedToDraw(nextPlayer,2);
-            /*  ATTENZIONE : il giocatore nextPlayer salta il turno */
-            state.nextTurn();
-            endTurn();
+        if (chosenCard.getType() == CardType.DRAW_TWO) {
+            if (settings.stackingEnabled) {
+                state.pendingDrawPenalty += 2;
+                state.activeStackType = CardType.DRAW_TWO;
+            // Il giocatore successivo NON salta subito, toccherà a lui gestire il problema
+                state.nextTurn();
+            } else {
+            // Logica classica UNO
+                forcedToDraw(nextPlayer, 2);
+                state.nextTurn(); // Salta
+            }
         }else if (chosenCard.getType() == CardType.WILD_DRAW){
             chooseColor(Color.BLUE); // placeholder value
             // SLAVA: mi serve un click qui, se il giocatore successivo clicca sulla challenge
@@ -158,6 +226,7 @@ public class GameEngine {
             forcedToDraw(nextPlayer,4);
         }else if(chosenCard.getType() == CardType.SKIP) {
             state.nextTurn();
+            state.nextTurn(); //Real skip qui
         }else if(chosenCard.getType() == CardType.REVERSE){
             state.invertClock();
         }else if(chosenCard.getType() == CardType.WILD_JOLLY){
@@ -165,21 +234,105 @@ public class GameEngine {
             chooseColor(Color.BLUE); // placeholder value
         }
 
+        // SE SCHIACCIA IL PULSANTE UNO
+        // SLAVA serve er click -> chiama funzione
+        /* callUno(player) */
+
+        // può anche contestare la mancata chiamata di uno
+        // SLAVA ->
+        /* disputeUnoCall(Player giocatoreDaIncolpare) */
+
         endTurn();
+    }
+
+    public void callUno(Player player){
+        if (canCallUno(player)) {
+            // se il giocatore può chiamare l'uno (quindi se ha una carta in mano)
+            player.setHasCalledUno(true);
+            // altrimenti rimane false di default
+
+            // giocatore successivo nel turno successivo può contesta
+        }else
+            System.out.println("Cazzo fai");
+    }
+
+    public boolean canCallUno(Player player){
+        return player.hasUno();
+    }
+
+    public void resetUnoCondition(Player player){
+        if (!player.hasUno())
+            player.setHasCalledUno(false);
+    }
+
+    public void disputeUnoCall(Player challenged){
+        if (challenged.hasUno() && challenged.getHasCalledUno())
+            System.out.println(challenged + " ha chiamato correttamente uno");
+            // SLAVA: view per mostrare che aveva torto il giocatore chiamante
+        else if(challenged.hasUno() && !challenged.getHasCalledUno())
+            forcedToDraw(challenged,2);
+            // SLAVA: view puniscilo!!!
 
     }
 
+    /** endTurn() checks if the match is over (according to whether it's a classic match or scoreBased).
+     *  If that is not the case, it lets the game continue.
+     */
     public void endTurn() {
-        //Controllo se ci sono vincitori
-        if (gameMode.isMatchOver(state.getCurrentPlayer())) {
-            view.showMessage("È FINITA! Ha vinto " + state.getCurrentPlayer().getName());
-            return;
-        }
+        if (state.getCurrentPlayer().getHandSize() == 0) {
 
+            if (gameMode.isMatchOver(state)) {
+                view.showMessage("È FINITA! Ha vinto " + state.getCurrentPlayer().getName());
+
+                saveStatsForAllPLayers();
+                globalStats.registerMatch(state.getMatchStats());
+                return;
+            }else{
+                // Caso in cui possiamo cadere solo nello ScoredBased,perché magari qualcuno
+                // ha vinto l'uno ma non è ancora arrivato al punteggio...
+                startGame(); // ricomincia e rimescola
+                return;
+            }
+
+        }
         // Passa al prossimo e riavvia il loop
         state.nextTurn();
         startTurn();
     }
+
+    public void saveStatsForAllPLayers(){
+        int winningScore = state.getMatchStats().getPointsFromAllPlayers();
+        Player winner = state.getCurrentPlayer();
+
+        Map<Player,Integer> playerPenalties = state.getMatchStats().getPenaltiesPerPlayer();
+        Map<Player,Integer> playerChallenges = state.getMatchStats().getPenaltiesPerPlayer();
+
+        for(Player p : state.players){
+            int numPenalties = playerPenalties.get(p);
+            int numChallenges = playerChallenges.get(p);
+
+            if(!p.equals(winner))
+                p.registerMatch(false,0,numPenalties,numChallenges);
+            else
+                p.registerMatch(true,winningScore, numPenalties,numChallenges);
+        }
+    }
+
+
+    public void humanCallUno() {
+        Player human = state.getCurrentPlayer();
+
+        if (human instanceof HumanPlayer) {
+            callUno(human);
+
+            if (human.getHasCalledUno()) {
+                view.showMessage(human.getName() + " UNO");
+            } else {
+                view.showMessage("NO UNO");
+            }
+        }
+    }
+
 
     public void executeBotTurn(BotPlayer bot) {
         //Picks a card based on its personality
@@ -202,6 +355,9 @@ public class GameEngine {
         }
     }
 
+    /** chooseColor() sets given color as the current playable color.
+     * @param newColor
+     */
     public void chooseColor(Color newColor){
         this.currentColor = newColor;
     }
@@ -233,6 +389,9 @@ public class GameEngine {
             forcedToDraw(challenged,4);
         else
             forcedToDraw(challenger,6);
+
+        state.getMatchStats().incrementChallenges(challenger);
+        state.getMatchStats().incrementChallenges(challenged);
     }
 
     /** forcedToDraw() adds a specified amount of cards to the hand of a specific player
@@ -242,8 +401,12 @@ public class GameEngine {
     public void forcedToDraw(Player player, int amountCards){
         Stack<Card> penaltyStack = state.getTopCards(amountCards);
         for(int i = 0; i < amountCards; i++){
-            player.receiveCard(penaltyStack.get(i));
+            Card penaltyCard = penaltyStack.get(i);
+            player.receiveCard(penaltyCard);
+            state.getMatchStats().incrementPointsTo(player,penaltyCard);
         }
+        state.getMatchStats().incrementPenalties(player);
+        resetUnoCondition(player);
     }
 
     //Controlla se ci sono carte giocabili
@@ -255,4 +418,5 @@ public class GameEngine {
         }
         return false;
     }
+
 }
