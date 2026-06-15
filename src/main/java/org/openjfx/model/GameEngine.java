@@ -501,6 +501,11 @@ public class GameEngine {
         state.getMatchStats().incrementChallenges(challenged);
     }
 
+    /** checks if there is at least one playable color card in a player's hand
+     * @param handToCheck hand to check
+     * @param previousColor
+     * @return true if there is, false otherwise
+     */
     public boolean checkHand(List<Card> handToCheck, Color previousColor){
         for(Card card : handToCheck){
             if(card.getColor() == previousColor)
@@ -539,10 +544,18 @@ public class GameEngine {
         return false;
     }
 
+    /** when it is possible to change color, the bot chooses a specific color based on its personality
+     * @param bot
+     * @return chosen color
+     */
     private Color botChooseColor(BotPlayer bot){
-        return bot.chooseColor(currentColor);
+            return bot.chooseColor(currentColor);
         };
 
+    /** bot determines whether it wants to raise a challenge or not based on its personality
+     * @param bot
+     * @return true if the bot chooses to challenge, false otherwise
+     */
     private boolean botChallenge(BotPlayer bot){
         return bot.wantsToChallenge();
     }
