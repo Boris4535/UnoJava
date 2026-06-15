@@ -4,6 +4,7 @@ import org.openjfx.controller.GameView;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Stack;
 
 /** GameEngine handles the core of the game and the matches.
@@ -30,6 +31,7 @@ public class GameEngine {
     private boolean hasDrawnThisTurn = false;
     private int pendingDrawPenalty = 0;
     private boolean hasDeclaredUno = false;
+    private Random random = new Random();
 
     /** Sole constructor which initializes the engine with the required core components, specifies the settings
      * and initializes a new tracking instance for the global statistics.
@@ -265,14 +267,14 @@ public class GameEngine {
             if (player instanceof HumanPlayer) {
                 chooseColor(view.chooseWildColor());
             } else {
-                chooseColor(Color.RED); // Per ora il bot sceglie rosso fisso
+                chooseColor(botChooseColor(((BotPlayer) nextPlayer))); // Stupid e clever, scelgono a caso, cheeky sceglie uno diverso da quello attuale
             }
             boolean wantsToChallenge = false;
             if (nextPlayer instanceof HumanPlayer) {
                 wantsToChallenge = view.askForChallenge(player.getName(), nextPlayer.getName());
             } else {
-                // Per ora i Bot non contestano mai. Lo faranno nella versione definitiva.
-                wantsToChallenge = false;
+                // 50% stupid, 25% clever, 75% cheeky
+                wantsToChallenge = botChallenge((BotPlayer) player);
             }
 
             if (wantsToChallenge) {
@@ -537,4 +539,13 @@ public class GameEngine {
         return false;
     }
 
+    private Color botChooseColor(BotPlayer bot){
+        return bot.chooseColor(currentColor);
+        };
+
+    private boolean botChallenge(BotPlayer bot){
+        return bot.wantsToChallenge();
+    }
+
 }
+
