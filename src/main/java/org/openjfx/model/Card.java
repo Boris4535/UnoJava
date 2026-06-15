@@ -30,7 +30,7 @@ public class Card {
      * Checks if the card is playable on top of the card passed by the parameter, usually
      * card atop the discard pile.
      * @param topCard the card that is being checked with
-     * @return isPlayable
+     * @return true if card is playable, false otherwise
      */
     public boolean isPlayableOn(Card topCard){
         //Carte wild

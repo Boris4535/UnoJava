@@ -43,8 +43,19 @@ public class GameEngine {
         this.gameMode = nGameMode;
         this.view = view;
         this.settings = settings;
+        setWinningScore(gameMode,settings);
 
         globalStats = GameStats.getInstance();
+    }
+
+    /** if the game mode is score based, then the target score is updated according to the chosen settings
+     * @param gameMode
+     * @param settings
+     */
+    public void setWinningScore(GameMode gameMode, MatchSettings settings){
+        if (gameMode instanceof ScoreBasedGame scoreBasedGame) {
+            scoreBasedGame.setTargetPoints(settings.WinningScore);
+        }
     }
 
     /** distributes a specified number of cards to each player.

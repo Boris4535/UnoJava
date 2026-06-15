@@ -15,10 +15,6 @@ public class ScoreBasedGame implements GameMode{
 
     public ScoreBasedGame(){}
 
-    public ScoreBasedGame(int maxScoreToReach){
-        this.targetPoints = maxScoreToReach;
-    }
-
     /** Determines if the match is over based on whether the current round winner
      * has reached (or exceeded) the target score.
      * @param state the current game state to evaluate
@@ -32,4 +28,7 @@ public class ScoreBasedGame implements GameMode{
         return players.get(currentPlayer) >= targetPoints;
     }
 
+    public void setTargetPoints(int nTargetPoints) {
+        this.targetPoints = nTargetPoints;
+    }
 }

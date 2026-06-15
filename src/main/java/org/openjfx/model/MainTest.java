@@ -8,6 +8,7 @@ import java.util.List;
 
 public class MainTest {
     public static void main(String[] args) {
+        /*
         Card c = new Card(Color.BLUE,CardType.NUMBERS,2);
         System.out.println(c.getValue());
 
@@ -50,6 +51,6 @@ public class MainTest {
         leon.receiveCard(new Card(Color.GREEN,CardType.NUMBERS,9));
 
         andriy.receiveCard(new Card(Color.GREEN,CardType.NUMBERS,7));
-
+        */
     }
 }
