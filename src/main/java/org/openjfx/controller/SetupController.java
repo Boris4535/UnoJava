@@ -10,6 +10,9 @@ import javafx.scene.layout.VBox;
 import org.openjfx.App;
 import org.openjfx.model.*;
 
+/**
+ * Match settings menu controller, allows customization of a match via MatchSettings.
+ */
 public class SetupController {
     @FXML private ToggleButton togglePunti;
     @FXML private TextField    txtSoglia;
@@ -92,7 +95,10 @@ public class SetupController {
         }
     }
 
-
+    /**
+     * Dynamically builds the GUI rows tha enables each player's configuration.
+     * @param count the number of players chosen
+     */
     public void buildPlayerRows(int count) {
         playersContainer.getChildren().clear();
         for (int i = 0; i < count; i++) {
@@ -137,6 +143,10 @@ public class SetupController {
         }
     }
 
+    /**
+     * Reads the user's input in the match settings' UI to instance each Player object.
+     * @return
+     */
     public List<Player> readPlayers() {
         List<Player> players = new ArrayList<>();
         for (var node : playersContainer.getChildren()) {
@@ -161,6 +171,10 @@ public class SetupController {
         return players;
     }
 
+    /**
+     * Collects all the data and create a MatchSettings object, initializing then TavoloController.
+     * @throws IOException
+     */
     @FXML
     public void startGame() throws IOException {
         MatchSettings settings = new MatchSettings();

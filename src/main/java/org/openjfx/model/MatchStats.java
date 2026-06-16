@@ -8,10 +8,10 @@ import java.util.ArrayList;
 
 import static org.openjfx.model.CardType.SKIP;
 
-/** Tracks and manages the statistics and scores of an active match.
- * It keeps tracks of the number of rounds (matches) and turns.
+/** Tracks and manages the statistics and scores of an active match.<br>
+ * It keeps tracks of the number of rounds (matches) and turns.<br>
  * Player specific statistics are also kept, such as challenges, penalties accumulated
- * by each player
+ * by each player.<br>
  * This class serves as the foundation for all game statistics. At the end of a match,
  * this data is processed to update individual records in {@link PlayerStats}
  * and global history inside {@link GameStats}.

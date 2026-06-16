@@ -20,7 +20,9 @@ import javafx.scene.control.ButtonBar.ButtonData;
 
 import java.util.List;
 
-
+/**
+ * Serves as an in between to low-level processes (gameEngine) and the User (view, clicks etc.)<br>
+ */
 public class TavoloController implements GameView {
 
     @FXML private HBox playerHandBox;
@@ -78,7 +80,10 @@ public class TavoloController implements GameView {
     }
 
 
-
+    /**
+     *  Activates the privacy screen, hiding the player's cards.
+     * @param p the player whose turn is about to begin
+     */
     @Override
     public void showPrivacyScreen(Player p) {
         privacyOverlay.setVisible(true);
@@ -87,6 +92,9 @@ public class TavoloController implements GameView {
         playerHandBox.getChildren().clear();
     }
 
+    /**
+     * Allows the player to see their cards.
+     */
     public void hidePrivacyScreen() {
         privacyOverlay.setVisible(false);
         if (engine != null) {
@@ -174,7 +182,10 @@ public class TavoloController implements GameView {
         }
     }
 
-
+    /**
+     * Loads up the match settings, initializing the game engine.
+     * @param settings
+     */
     public void setInitialData(MatchSettings settings) {
         System.out.println("Match started with " + settings.Players.size() + " players");
         GameState gameState = new GameState(settings.Players, settings);
@@ -240,6 +251,10 @@ public class TavoloController implements GameView {
         }
     }
 
+    /**
+     * Allows a player to choose the current color after placing a wild card.
+     * @return
+     */
     @Override
     public org.openjfx.model.Color chooseWildColor() {
         // Opzioni da mostrare
@@ -269,6 +284,12 @@ public class TavoloController implements GameView {
         }
     }
 
+    /**
+     * Prompts a player if they want to challenge a wild card.
+     * @param challengerName the challenger
+     * @param victimName the challenged
+     * @return true if the challenger decides to challenge the challenged
+     */
     @Override
     public boolean askForChallenge(String challengerName, String victimName) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -417,6 +438,11 @@ public class TavoloController implements GameView {
 
     // ----------------------------------L'ARTE------------------------//
 
+    /**
+     * Dynamically creates card graphics.
+     * @param card the card to display
+     * @return
+     */
     private StackPane createCardNode(Card card) {
         StackPane pane = new StackPane();
         pane.setMaxSize(70, 105);

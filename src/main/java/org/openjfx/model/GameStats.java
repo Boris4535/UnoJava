@@ -1,7 +1,7 @@
 package org.openjfx.model;
 
 /** Collects, aggregates, and calculates global statistics for
- * all matches ever played in the game.
+ * all matches ever played in the game.<br>
  * This class tracks data such as total penalties, total challenges,
  * and calculated averages for scores, rounds and turns.
  * @author Lucia Annicchiarico

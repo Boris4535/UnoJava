@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Defines match settings variables.
+ */
 public class MatchSettings implements Serializable {
     public boolean PointsBasedGame = false;
     public int WinningScore = 500 ;

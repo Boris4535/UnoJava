@@ -13,7 +13,7 @@ import java.util.Stack;
  * it acts as a controller of the game state, coordinating interactions between the
  * model layer ({@link GameState}, {@link Card}, {@link Player}) and the view ({@link GameView}).
  * It handles turn rotation and card mechanics (like skips, reverses, and penalties),
- * UNO declarations(and its failuire), and bots.
+ * UNO declarations(and its failure), and bots.
  * Its statistics are kept by {@link GameStats} and {@link MatchStats}
  * @author Lucia Annicchiarico
  * @author Andriy Chyzhevskyy
@@ -53,7 +53,7 @@ public class GameEngine {
         globalStats = GameStats.getInstance();
     }
 
-    /** if the game mode is score based, then the target score is updated according to the chosen settings
+    /** If the game mode is score based, then the target score is updated according to the chosen settings.
      * @param gameMode
      * @param settings
      */
@@ -67,9 +67,7 @@ public class GameEngine {
         return this.state;
     }
 
-    /** dealHand() distributes a specified number of cards to each player.
-
-     /** distributes a specified number of cards to each player.
+     /** Distributes a specified number of cards to each player.
      * @param cardsPerPlayer
      */
     public void dealHand(int cardsPerPlayer) {
@@ -80,13 +78,13 @@ public class GameEngine {
         }
     }
 
-    /** prepareDeck() shuffles deck.
+    /** Shuffles the deck.
      */
     public void prepareDeck() {
         state.shuffle(state.drawPile);
     }
 
-    /** startGame() lays the foundation of the game by preparing the deck, distributing the cards
+    /** Lays the foundation of the game by preparing the deck, distributing the cards
      * and getting the turns started.
      */
     public void startGame() {
@@ -113,7 +111,7 @@ public class GameEngine {
 
     }
 
-    /** resumeGame() restores the internal engine variables and the GUI from a loaded state.
+    /** Restores the internal engine variables and the GUI from a loaded state.
      */
     public void resumeGame() {
         // Ripristina la carta e il colore correnti dal GameState caricato
@@ -128,7 +126,7 @@ public class GameEngine {
         startTurn();
     }
 
-    /** lets the player starts their turn, whether they are a human player or a bot
+    /** Lets the player starts their turn, whether they are a human player or a bot
      */
     public void startTurn()
     {
@@ -170,7 +168,7 @@ public class GameEngine {
         }
     }
 
-    /** checks if a player can respond to a stacking card.
+    /** Checks if a player can respond to a stacking card.
      * In any way, the view shows the outcome.
      * @param currentPlayer
      */
@@ -208,7 +206,7 @@ public class GameEngine {
         return new Card(currentColor, currentCard.getType(), currentCard.getValue());
     }
 
-    /** humanPlayCard() checks if the card is playable and then executes the move.
+    /** Checks if the card is playable and then executes the move.
      * @param chosenCard
      */
     public void humanPlayCard(Card chosenCard) {
@@ -248,7 +246,7 @@ public class GameEngine {
         }
     }
 
-    /** humanDrawCard() checks conditions in drawing from the deck and acts accordingly.
+    /** Checks conditions in drawing from the deck and acts accordingly.
      * The player can only draw once.
      * Forces the human to draw if no card can be currently played.
      * The turn ends if no card can be played even after drawing, otherwise continues.
@@ -290,7 +288,7 @@ public class GameEngine {
 
     }
 
-    /** actually plays the card, and evoke its properties if necessary.
+    /** Actually plays the card, and evoke its properties if necessary.
      * It also handles the option to evoke a challenge and play it.
      * In this method, the player can also choose to accuse another player of failing to declare UNO
      * and punish them.
@@ -425,7 +423,7 @@ public class GameEngine {
         endTurn();
     }
 
-    /** lets the player declare UNO when owning only one card in their hand.
+    /* lets the player declare UNO when owning only one card in their hand.
      *  It checks if the claim is legitimate.
      * @param player declarer
      */
@@ -441,7 +439,7 @@ public class GameEngine {
     }*/
     //^^^ Has deprecated, logic moved into handleUnoButtonClick()
 
-    /** checks if a player is eligible to declare UNO.
+    /** Checks if a player is eligible to declare UNO.
      * @param player declarer
      * @return true if the player has one card in their hand, false otherwise
      */
@@ -450,7 +448,7 @@ public class GameEngine {
     }
 
 
-    /** resets a player's UNO declaration status if they no longer have exactly one card
+    /** Resets a player's UNO declaration status if they no longer have exactly one card
      * @param player old declarer
      */
     public void resetUnoCondition(Player player){
@@ -458,7 +456,7 @@ public class GameEngine {
             player.setHasCalledUno(false);
     }
 
-    /** lets one player (the challenger) accuse another (the challenged) of
+    /* Lets one player (the challenger) accuse another (the challenged) of
      * not declaring UNO when they were supposed to.
      *  If the claim is correct, the challenged is forced to draw 2 cards.
      * @param challenged accused player
@@ -476,18 +474,17 @@ public class GameEngine {
     }*/
     //^^^^ HAS DEPRECATED, moved into handleUnoButtonClick()
 
-    /** checks if the match is over (according to whether it's a classic match or scoreBased).
+    /** Checks if the match is over (according to whether it's a classic match or scoreBased).<br>
      *  If one player has zero cards in their hand, there are two scenarios:
-     *  <li>
-     *      If the gameMode is ClassicGame, the game ends and the player wins immediately.
-     *  </li>
-     *  <li>
-     *      If the game mode is ScoreBasedGame, it checks if the player has reached the target score
-     *      <li>If that's the case, the player wins immediately.</li>
-     *      <li>Otherwise, a new match starts and the current player receives the points from
-     *      the remaining cards in the other players' hands. It continues until the target score is reached by one player
-     *      </li>
-     *  </li>
+     *
+     *      <p>If the gameMode is ClassicGame, the game ends and the player wins immediately.</p>
+     *
+     *      <p>If the game mode is ScoreBasedGame, it checks if the player has reached the target score.<br>
+     *      If that's the case, the player wins immediately.</p>
+     *      <p>Otherwise, a new match starts and the current player receives the points from
+     *      the remaining cards in the other players' hands. It continues until the target score is reached by one player.</p>
+     *
+     *
      */
     public void endTurn() {
         if (state.getCurrentPlayer().getHandSize() == 0) {
@@ -515,9 +512,9 @@ public class GameEngine {
         }
     }
 
-    /** Saves the final match statistics for all players.
-     * Aggregates points, penalties, and challenges from the current match.
-     * The winner receives the total points scored, while losers receive 0 points.
+    /** Saves the final match statistics for all players.<br>
+     * Aggregates points, penalties, and challenges from the current match.<br>
+     * The winner receives the total points scored, while losers receive 0 points.<br>
      * All players have their personal match history updated
      */
     public void saveStatsForAllPLayers(){
@@ -538,7 +535,7 @@ public class GameEngine {
         }
     }
 
-    /** displays the outcome (success or failure) of a UNO declaration by a human
+    /** Displays the outcome (success or failure) of a UNO declaration by a human
      * in the user interface
      */
 
@@ -567,6 +564,9 @@ public class GameEngine {
         }
     }
 
+    /**
+     * Makes every player give their hand to the next one in turn order.
+     */
     public void rotateHands() {
         int dir = state.clockwisePhase ? 1 : -1;
         int size = state.players.size();
@@ -579,6 +579,11 @@ public class GameEngine {
         }
     }
 
+    /**
+     * Swaps the hands of the two given players.
+     * @param p1 first player
+     * @param p2 second player
+     */
     public void swapHands(Player p1, Player p2) {
         List<Card> temp = new ArrayList<>(p1.getHand());
         p1.getHand().clear();
@@ -587,8 +592,8 @@ public class GameEngine {
         p2.getHand().addAll(temp);
     }
 
-    /** execute the turn of a bot according to its personality.
-     * The bot attempts to play a valid card.
+    /** Execute the turn of a bot according to its personality.<br>
+     * The bot attempts to play a valid card.<br>
      * If no card can be played, the bot draws a card from the deck. If the drawn card
      * is playable, the bot plays it immediately. Otherwise, the turn is ended.
      * @param bot
@@ -613,14 +618,14 @@ public class GameEngine {
         }
     }
 
-    /** chooseColor() sets given color as the current playable color.
+    /** Sets given color as the current playable color.
      * @param newColor new current color
      */
     public void chooseColor(Color newColor){
         this.currentColor = newColor;
     }
 
-    /** takes a hand from a player and checks if they have any playable Color card
+    /** Takes a hand from a player and checks if they have any playable Color card
      * at the moment.
      * @param handToCheck
      * @return true if there is at least one color card to play, false otherwise
@@ -633,10 +638,10 @@ public class GameEngine {
         return false;
     }
 
-    /** can be evoked by a player (the challenger) if they believe
-     * another player (challenged) has lied and played the WILD DRAW CARD while having a playable color card in their hand.
-     * This is illegal in the game.
-     * If the challenger is correct, the challenged has to draw 4 cards.
+    /** Can be evoked by a player (the challenger) if they believe
+     * another player (challenged) has lied and played the WILD DRAW CARD while having a playable color card in their hand.<br>
+     * This is illegal in the game.<br>
+     * If the challenger is correct, the challenged has to draw 4 cards.<br>
      * Otherwise, he has to draw himself 6 cards.
      * @param challenger the player who accuses
      * @param challenged the accused
@@ -655,7 +660,7 @@ public class GameEngine {
         state.getMatchStats().incrementChallenges(challenged);
     }
 
-    /** checks if there is at least one playable color card in a player's hand
+    /** Checks if there is at least one playable color card in a player's hand
      * @param handToCheck hand to check
      * @param previousColor
      * @return true if there is, false otherwise
@@ -668,7 +673,7 @@ public class GameEngine {
         return false;
     }
 
-    /** dds a specified amount of cards to the hand of a specific player, often as a result of a penalty.
+    /** Adds a specified amount of cards to the hand of a specific player, often as a result of a penalty.
      * @param player victim
      * @param amountCards number of cards the victim is forced to draw
      */
@@ -706,7 +711,7 @@ public class GameEngine {
 
     //Controlla se ci sono carte giocabili
 
-    /** checks if a player has any playable card in their hand, regardless of whether it's a color card or not.
+    /** Checks if a player has any playable card in their hand, regardless of whether it's a color card or not.
      * @param player player whose hand is going to be checked
      * @return true if there is at least one (any) playable card, false otherwise
      */
@@ -720,8 +725,8 @@ public class GameEngine {
     }
 
     /**
-     * Motore di simulazione Batch: esegue X partite consecutivamente senza aggiornare la GUI,
-     * calcolando solo le statistiche. Gira su un Thread separato.
+     * Batch Simulation engine: plays X number of games, without updating the GUI and only calculating the stats<br>
+     * Runs on a separate thread.
      */
     private void executeMoveSim(Player player, Card chosenCard) {
         player.removeCard(chosenCard);
@@ -816,7 +821,7 @@ public class GameEngine {
         resetUnoCondition(player);
     }
 
-    /** when it is possible to change color, the bot chooses a specific color based on its personality
+    /** When it is possible to change color, the bot chooses a specific color based on its personality
      * @param bot
      * @return chosen color
      */
@@ -824,7 +829,7 @@ public class GameEngine {
         return bot.chooseColor(currentColor);
     };
 
-    /** bot determines whether it wants to raise a challenge or not based on its personality
+    /** Bot determines whether it wants to raise a challenge or not based on its personality
      * @param bot
      * @return true if the bot chooses to challenge, false otherwise
      */

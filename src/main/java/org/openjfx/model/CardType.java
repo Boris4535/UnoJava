@@ -1,5 +1,8 @@
 package org.openjfx.model;
 
+/**
+ * Defines each possible card type.
+ */
 public enum CardType {
     NUMBERS,
     SKIP,

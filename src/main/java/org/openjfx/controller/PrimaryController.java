@@ -12,6 +12,9 @@ import javafx.scene.layout.VBox;
 import org.openjfx.App;
 import org.openjfx.model.GameState;
 
+/**
+ * Main menu controller
+ */
 public class PrimaryController {
 
     @FXML
@@ -24,9 +27,6 @@ public class PrimaryController {
         showLoadMenu();
     }
 
-    /**
-     *
-     */
     private void showLoadMenu() {
         Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle("Carica Partita");

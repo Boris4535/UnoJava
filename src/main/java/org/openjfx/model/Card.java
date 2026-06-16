@@ -2,12 +2,12 @@ package org.openjfx.model;
 
 import java.io.Serializable;
 import java.util.List;
-
-public class Card implements Serializable {
 /**
  * Defines a single card and its properties, and a method to check if it is playable
  * @author leon445
  */
+public class Card implements Serializable {
+
     private Color color;
     private CardType type;
     private int value = -1;

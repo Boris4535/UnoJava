@@ -4,6 +4,9 @@ import org.openjfx.model.GameState;
 
 import java.io.*;
 
+/**
+ * Save manager, allows for saving and loading game data.
+ */
 public class SaveManager {
     private static final String SAVE_FOLDER = "saves/";
 
@@ -12,6 +15,12 @@ public class SaveManager {
         if (!dir.exists()) dir.mkdirs();
     }
 
+    /**
+     *Saves the current game state.
+     * @param state the current game state
+     * @param filename the file in which the game is saved
+     * @return true if saved properly
+     */
     public static boolean saveGame(GameState state, String filename) {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(SAVE_FOLDER + filename + ".sav"))) {
             out.writeObject(state);
@@ -22,6 +31,11 @@ public class SaveManager {
         }
     }
 
+    /**
+     * Loads up a save.
+     * @param filename the file in which the game is saved
+     * @return
+     */
     public static GameState loadGame(String filename) {
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(SAVE_FOLDER + filename + ".sav"))) {
             return (GameState) in.readObject();

@@ -3,18 +3,19 @@ package org.openjfx.model;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Random;
-
-public class BotPlayer extends Player implements Serializable {
 /**
- * Extends Player and has a personality attribute and methods that allow bots to choose a card
- * @author leon445
+ * Defines non-human player, has a personality attribute and methods that allow bots to choose a card.<br>
+ * Extends from Player.
+ * @author Emanuele Leon Balbo
  */
+public class BotPlayer extends Player implements Serializable {
+
 
     private BotType personality;
     private Random random = new Random();
 
     /**
-     * Initializes the bot player with his personality
+     * Initializes the bot player with its personality.
      *
      * @param personality
      */
@@ -23,10 +24,10 @@ public class BotPlayer extends Player implements Serializable {
     }
 
     /**
-     * Calls the corresponding method based on the assigned Bot personality
-     * Stupid selects a random card
-     * Clever uses a priority list
-     * Cheeky decides based on the current card on the discard pile
+     * Calls the corresponding method based on the assigned Bot personality.<br>
+     * Stupid selects a random card.<br>
+     * Clever uses a priority list.<br>
+     * Cheeky decides based on the current card on the discard pile.
      *
      * @param current the top card of the discard pile
      * @return chosenCard
@@ -104,7 +105,7 @@ public class BotPlayer extends Player implements Serializable {
     }
 
     /**
-     * Chooses a color, stupid and clever choose at random, cheeky makes sure that it's different from the current one
+     * Chooses a color, stupid and clever choose at random, cheeky makes sure that it's different from the current one.
      * @param current the current card
      * @return a color based on the personality
      */

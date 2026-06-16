@@ -3,6 +3,9 @@ import java.io.Serializable;
 
 //Storico mosse
 
+/**
+ * Moves log.
+ */
 public class Move implements Serializable {
     public String playerName;
     public String actionDescription;

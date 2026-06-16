@@ -2,12 +2,12 @@ package org.openjfx.model;
 
 import java.io.Serializable;
 import java.util.*;
-
-public abstract class Player implements Serializable {
 /**
- * Defines the player class, complete with name, stats and hand
- * @author leon445
+ * Defines the player class, complete with name, stats and hand.
+ * @author Emanuele Leon Balbo
  */
+public abstract class Player implements Serializable {
+
     public String name;
     private List<Card> hand = new LinkedList<>();
     private boolean hasCalledUno = false;
@@ -29,7 +29,7 @@ public abstract class Player implements Serializable {
     }
 
     /**
-     * Gives the starting hand to the player
+     * Gives the starting hand to the player.
      * @param cards cards take from the initialized draw pile
      */
     public void initiateHand(Stack<Card> cards){

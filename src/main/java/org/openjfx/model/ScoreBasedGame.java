@@ -4,7 +4,7 @@ import org.openjfx.model.Player;
 
 import java.util.Map;
 
-/** Implements a score based win condition for a match.
+/** Implements a score based win condition for a match.<br>
  * In this mode, multiple matches can potentially be played,
  * until at least one player reaches the target score.
  * @author Lucia Annicchiarico

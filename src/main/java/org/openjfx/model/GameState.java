@@ -7,12 +7,12 @@ import java.util.*;
 import static org.openjfx.model.Color.*;
 import static org.openjfx.model.CardType.*;
 
-/** GameState contains the current state of an ongoing match.
- * It remembers the players, their position and the direction of the match (clockwise or not).
+/** Contains the current state of an ongoing match.<br>
+ * It remembers the players, their position and the direction of the match (clockwise or not).<br>
  * It also initializes the deck, shuffles it, tracks its lifecycle with the discard pile (which can be turned into a new deck)
- * and manages any interaction with the deck.
+ * and manages any interaction with the deck.<br>
  * The statistics of the match are registered by {@link MatchStats}
- * @author Leon Balbo
+ * @author Emanuele Leon Balbo
  * @author Lucia Annicchiarico
  * @author Andriy Chyzhevskyy
  */
@@ -29,7 +29,7 @@ public class GameState implements Serializable {
     public MatchSettings settings;
     private MatchStats matchStats; // tiene le statistiche di ogni singola partita
 
-    /** sole constructor, sets up the state of the game ready to function and establishes the players
+    /** Sole constructor, sets up the state of the game ready to function and establishes the players
      * @param nPlayers list of players
      */
     public GameState(List<Player> nPlayers, MatchSettings settings) {
@@ -39,19 +39,19 @@ public class GameState implements Serializable {
         players = nPlayers;
     }
 
-    /** returns currentPlayer
+    /** Returns the current Player.
      */
     public Player getCurrentPlayer(){
         return players.get(currentPlayerIndex);
     }
 
-    /** inverts the clock the opposite way
+    /** Inverts the clock.
      */
     public void invertClock(){
         clockwisePhase = false;
     }
 
-    /** nextTurn() moves to the next player in the list, and takes into account the clockwisePhase
+    /** Moves to the next player in the list, and takes into account clockwisePhase.
      */
     public void nextTurn(){
         int numPlayers = players.size();
@@ -61,7 +61,7 @@ public class GameState implements Serializable {
             this.currentPlayerIndex = (currentPlayerIndex - 1 + numPlayers) % numPlayers;
     }
 
-    /** getNextPlayer() returns next player in the list WITHOUT moving the list.
+    /** Returns next player in the list WITHOUT moving the list.<br>
      * To actually move the list, check nextTurn()
      * @return next player in line
      */
@@ -75,7 +75,7 @@ public class GameState implements Serializable {
         return players.get(indexNextPlayer);
     }
 
-    /** shuffles a stack of cards in a random pattern
+    /** Shuffles a stack of cards in a random pattern.
      * @param cardStack deck or cards to shuffle
      * @return shuffled stack of cards
      */
@@ -88,7 +88,7 @@ public class GameState implements Serializable {
         return temp2;
     }
 
-    /** builds a pile of cards following the standard Uno-style card deck.
+    /** Builds a pile of cards following the standard Uno-style card deck.<br>
      *  Therefore, the deck contains:
      *  <ul>
      *  <li>76 Number cards (of all colors; one '0' and two of each from '1' to '9' per color).</li>
@@ -124,7 +124,7 @@ public class GameState implements Serializable {
         Collections.shuffle(drawPile);
     }
 
-    /** draws a specified amount of cards from the deck
+    /** Draws a specified amount of cards from the deck.
      * @param nCards number of cards to draw
      * @return the stack of cards taken from the deck
      * @throws IndexOutOfBoundsException if nCards is greater than the size of the deck
@@ -148,12 +148,12 @@ public class GameState implements Serializable {
         return this.matchStats;
     }
 
-    /** shuffles the discardPile so it can be reused as draw pile
-     */
     public void setMatchStats(MatchStats matchStats) {
         this.matchStats = matchStats;
     }
 
+    /** Shuffles the discardPile so that it can be reused as the draw pile.
+     */
     public void reshuffleDiscardIntoDraw(){
         drawPile = shuffle(discardPile);
         discardPile.clear(); //Mancava ripulire la pila dopo rimescolato

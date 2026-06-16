@@ -2,7 +2,7 @@ package org.openjfx.model;
 
 import org.openjfx.model.Player;
 
-/** Implements the classic win condition in a match.
+/** Implements the classic win condition in a match.<br>
  * In this mode, only one match is played, which ends once one player
  * has discarded all cards from their hand.
  * @author Lucia Annicchiarico

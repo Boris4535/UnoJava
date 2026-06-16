@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Export the game stats into a .json.
+ */
 public class ExportManager {
     public static boolean exportStatsToJson(GameStats stats) {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
