@@ -1,7 +1,9 @@
-package org.openjfx.model;
+package org.openjfx.engine;
 
 import org.openjfx.controller.GameView;
+import org.openjfx.model.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -20,6 +22,7 @@ public class GameEngine {
     private boolean hasDrawnThisTurn = false;
     private int pendingDrawPenalty = 0;
     private boolean hasDeclaredUno = false;
+    public long simulationDurationMs = 0;
 
     public GameEngine(GameState nState, GameMode nGameMode, GameView view, MatchSettings settings) {
         this.state = nState;
@@ -29,6 +32,11 @@ public class GameEngine {
 
         globalStats = new GameStats();
     }
+
+    public GameState getState() {
+        return this.state;
+    }
+
     /** dealHand() distributes a specified number of cards to each player.
      * @param cardsPerPlayer
      */
@@ -48,8 +56,8 @@ public class GameEngine {
      * and getting the turns started.
      */
     public void startGame() {
+        state.setMatchStats(new MatchStats(state.players));
 
-        state.matchStats = new MatchStats(state.players);
 
         state.getMatchStats().incrementRounds();
 
@@ -67,6 +75,21 @@ public class GameEngine {
         startTurn();
 
 
+    }
+
+    /** resumeGame() restores the internal engine variables and the GUI from a loaded state.
+     */
+    public void resumeGame() {
+        // Ripristina la carta e il colore correnti dal GameState caricato
+        currentCard = state.discardPile.peek();
+        currentColor = state.currentColor;
+
+        // Aggiorna la vista
+        view.updateTopCard(currentCard);
+        view.showMessage("Partita caricata con successo!");
+
+        // Fai ripartire il turno del giocatore corrente
+        startTurn();
     }
     /** startTurn() lets the player play
      */
@@ -86,43 +109,44 @@ public class GameEngine {
         }
 
         if (currentPlayer instanceof HumanPlayer) {
-            view.updatePlayerHand(currentPlayer.getHand());
-
-            //se il giocatore è umano, lavora, sennò no
-            //intanto si aspetta er click
-
-            view.updatePlayerHand(currentPlayer.getHand());
-            view.showMessage("È il tuo turno, " + currentPlayer.getName());
+            // Implementazione Privacy Mode
+            if (settings.privacyModeEnabled) {
+                view.showPrivacyScreen(currentPlayer);
+            } else {
+                view.updatePlayerHand(currentPlayer.getHand());
+                view.showMessage("È il tuo turno, " + currentPlayer.getName() + "Yep, this is the gorbino's quest of turns");
+            }
         } else {
-
             view.showMessage(currentPlayer.getName() + " (Bot) sta calcolando l'entropia");
-
             executeBotTurn((BotPlayer) currentPlayer);
         }
     }
 
     private void handleStackingPhase(Player currentPlayer) {
-        boolean canDefend = false;
-
+        Card defenseCard = null;
         for (Card c : currentPlayer.getHand()){
             if (c.getType() == state.activeStackType){
-                canDefend = true;
+                defenseCard = c;
                 break;
             }
         }
 
-        if(canDefend) {
-            view.showMessage(currentPlayer.getName() + "C'è uno stack");
-        }else{
-            view.showMessage(currentPlayer.getName() + "Sei stato tutto stackkato");
+        if(defenseCard != null) {
+            view.showMessage(currentPlayer.getName() + " C'è uno stack! Difenditi!");
 
-            state.pendingDrawPenalty =0;
+            // FIX: Se è un Bot, lancia automaticamente la carta per difendersi!
+            if (currentPlayer instanceof BotPlayer) {
+                executeMove(currentPlayer, defenseCard);
+            }
+            // Se è umano, il metodo termina qui e aspetta il click dell'utente.
+
+        } else {
+            view.showMessage(currentPlayer.getName() + " Sei stato stackato! Peschi " + state.pendingDrawPenalty);
+            forcedToDraw(currentPlayer, state.pendingDrawPenalty);
+            state.pendingDrawPenalty = 0;
             state.activeStackType = null;
-
             endTurn();
-
         }
-
     }
 
     /** humanPlayCard() checks if the card is playable and then execute the move.
@@ -199,6 +223,7 @@ public class GameEngine {
 
         // cancelliamo carta dal mazzo
         player.removeCard(chosenCard);
+        Map<Player,Integer> playerChallenges = state.getMatchStats().getPenaltiesPerPlayer();
 
         // buttiamo carta a terra
         state.discardPile.add(chosenCard);
@@ -208,7 +233,28 @@ public class GameEngine {
         currentColor = chosenCard.getColor();
         view.updateTopCard(currentCard);
 
+        //LOG MOSSA
+        state.getMatchStats().addMove(player.getName(), "gioca " + chosenCard.getColor() + " " + chosenCard.getType());
+
         Player nextPlayer = state.getNextPlayer();
+
+        // Regola 7-0
+        if (settings.sevenZeroEnabled && chosenCard.getType() == CardType.NUMBERS) {
+            if (chosenCard.getValue() == 0) {
+                state.getMatchStats().addMove(player.getName(), "attiva la regola dello 0! Tutte le mani ruotano.");
+                rotateHands();
+            } else if (chosenCard.getValue() == 7) {
+                state.getMatchStats().addMove(player.getName(), "attiva la regola del 7! Scambia la mano.");
+                if (player instanceof HumanPlayer) {
+                    Player target = view.choosePlayerToSwapHands(state.players, player);
+                    swapHands(player, target);
+                } else {
+                    Player target = state.players.get((state.currentPlayerIndex + 1) % state.players.size());
+                    swapHands(player, target);
+                }
+            }
+        }
+
         if (chosenCard.getType() == CardType.DRAW_TWO) {
             if (settings.stackingEnabled) {
                 state.pendingDrawPenalty += 2;
@@ -238,7 +284,8 @@ public class GameEngine {
             }
 
             if (wantsToChallenge) {
-                evokeChallenge(player, nextPlayer, colorBeforePlay); // player=chi ha lanciato, nextPlayer=chi subisce
+                evokeChallenge(nextPlayer, player, colorBeforePlay); // player=chi ha lanciato, nextPlayer=chi subisce
+                //Little fix here ^^^^, sistemato i parametri
             } else {
                 forcedToDraw(nextPlayer, 4);
             }
@@ -256,15 +303,41 @@ public class GameEngine {
             } else {
                 chooseColor(Color.RED); // Bot sceglie rosso
             }
+        }if (player.getHandSize() == 1 && !player.getHasCalledUno()) {
+            boolean busted = false;
+            for (Player p : state.players) {
+                // I bot hanno il 50% di probabilità di sgamarlo Leon nn so s
+                if (p instanceof BotPlayer && Math.random() > 0.5) {
+                    state.getMatchStats().addMove(p.getName(), "ha sgamato " + player.getName() + " che non ha detto UNO!");
+                    view.showMessage(p.getName() + " ha contestato l'UNO di " + player.getName() + "!");
+                    forcedToDraw(player, 2);
+                    busted = true;
+                    break;
+                }
+            }
+        }
+        if (player instanceof BotPlayer && player.getHandSize() == 1) {
+            if (Math.random() > 0.2) {
+                player.setHasCalledUno(true);
+                view.showMessage(player.getName() + " dichiara UNO!");
+                state.getMatchStats().addMove(player.getName(), "dichiara UNO!");
+            }
         }
 
-        // SE SCHIACCIA IL PULSANTE UNO
-        // SLAVA serve er click -> chiama funzione
-        /* callUno(player) */
-
-        // può anche contestare la mancata chiamata di uno
-        // SLAVA ->
-        /* disputeUnoCall(Player giocatoreDaIncolpare) */
+        for (Player p : state.players) {
+            if (p.getHandSize() == 1 && !p.getHasCalledUno()) {
+                for (Player checker : state.players) {
+                    // Un bot controlla gli avversari (50% di probabilità di accorgersene)
+                    if (checker instanceof BotPlayer && checker != p && Math.random() > 0.5) {
+                        state.getMatchStats().addMove(checker.getName(), "ha contestato la mancata dichiarazione di " + p.getName());
+                        view.showMessage(checker.getName() + " ha contestato l'UNO di " + p.getName() + "!");
+                        forcedToDraw(p, 2);
+                        p.setHasCalledUno(true);
+                        break; // Basta una contestazione
+                    }
+                }
+            }
+        }
 
         endTurn();
     }
@@ -310,6 +383,7 @@ public class GameEngine {
 
                 saveStatsForAllPLayers();
                 globalStats.registerMatch(state.getMatchStats());
+                view.showPostMatchScreen(globalStats, state.getMatchStats()); // Chiamata UI Finale
                 return;
             }else{
                 // Caso in cui possiamo cadere solo nello ScoredBased,perché magari qualcuno
@@ -329,7 +403,7 @@ public class GameEngine {
         Player winner = state.getCurrentPlayer();
 
         Map<Player,Integer> playerPenalties = state.getMatchStats().getPenaltiesPerPlayer();
-        Map<Player,Integer> playerChallenges = state.getMatchStats().getPenaltiesPerPlayer();
+        Map<Player,Integer> playerChallenges = state.getMatchStats().getChallengesPerPlayer(); //Doubled penalties turned into challenges
 
         for(Player p : state.players){
             int numPenalties = playerPenalties.get(p);
@@ -343,18 +417,49 @@ public class GameEngine {
     }
 
 
-    public void humanCallUno() {
-        Player human = state.getCurrentPlayer();
+    public void handleUnoButtonClick() {
+        Player currentPlayer = state.getCurrentPlayer();
 
-        if (human instanceof HumanPlayer) {
-            callUno(human);
+        if (currentPlayer.getHandSize() <= 2) {
+            currentPlayer.setHasCalledUno(true);
+            view.showMessage(currentPlayer.getName() + " ha dichiarato UNO!");
+            return;
+        }
 
-            if (human.getHasCalledUno()) {
-                view.showMessage(human.getName() + " UNO");
-            } else {
-                view.showMessage("NO UNO");
+        boolean caughtSomeone = false;
+        for (Player p : state.players) {
+            if (p != currentPlayer && p.getHandSize() == 1 && !p.getHasCalledUno()) {
+                view.showMessage(currentPlayer.getName() + " ha contestato la mancata dichiarazione di " + p.getName() + "!");
+                state.getMatchStats().addMove(currentPlayer.getName(), "ha contestato l'UNO di " + p.getName());
+                forcedToDraw(p, 2);
+                p.setHasCalledUno(true); // Reset per non penalizzarlo all'infinito
+                caughtSomeone = true;
             }
         }
+
+        if (!caughtSomeone) {
+            view.showMessage("Nessuno da contestare al momento!");
+        }
+    }
+
+    public void rotateHands() {
+        int dir = state.clockwisePhase ? 1 : -1;
+        int size = state.players.size();
+        List<List<Card>> allHands = new ArrayList<>();
+        for (Player p : state.players) allHands.add(new ArrayList<>(p.getHand()));
+        for (int i = 0; i < size; i++) {
+            int targetIndex = (i + dir + size) % size;
+            state.players.get(targetIndex).getHand().clear();
+            state.players.get(targetIndex).getHand().addAll(allHands.get(i));
+        }
+    }
+
+    public void swapHands(Player p1, Player p2) {
+        List<Card> temp = new ArrayList<>(p1.getHand());
+        p1.getHand().clear();
+        p1.getHand().addAll(p2.getHand());
+        p2.getHand().clear();
+        p2.getHand().addAll(temp);
     }
 
 
@@ -441,6 +546,7 @@ public class GameEngine {
             state.getMatchStats().incrementPointsTo(player,penaltyCard);
         }
         state.getMatchStats().incrementPenalties(player);
+        state.getMatchStats().addMove(player.getName(), "ha pescato " + amountCards + " carte di penalità.");
         resetUnoCondition(player);
     }
 
@@ -452,6 +558,137 @@ public class GameEngine {
             }
         }
         return false;
+    }
+
+    /**
+     * Motore di simulazione Batch: esegue X partite consecutivamente senza aggiornare la GUI,
+     * calcolando solo le statistiche. Gira su un Thread separato.
+     */
+    public void runBatchSimulation() {
+        long startTime = System.currentTimeMillis();
+
+        for (int i = 0; i < settings.numSimulations; i++) {
+            // Reset totale per la nuova partita
+            state.initDrawPile();
+            state.discardPile.clear();
+            for (Player p : state.players) p.getHand().clear();
+
+            state.setMatchStats(new MatchStats(state.players));
+            state.getMatchStats().incrementRounds();
+            prepareDeck();
+            dealHand(7);
+            currentCard = state.getTopCards(1).pop();
+            state.discardPile.add(currentCard);
+            currentColor = currentCard.getColor();
+
+            boolean matchOver = false;
+            while (!matchOver) {
+                Player currentPlayer = state.getCurrentPlayer();
+                state.getMatchStats().incrementTurns();
+
+                // Logica del Turno Bot (senza interfaccia)
+                if (state.pendingDrawPenalty > 0) {
+                    boolean canDefend = currentPlayer.getHand().stream().anyMatch(c -> c.getType() == state.activeStackType);
+                    if (!canDefend) {
+                        forcedToDrawSim(currentPlayer, state.pendingDrawPenalty);
+                        state.pendingDrawPenalty = 0;
+                        state.activeStackType = null;
+                    }
+                } else {
+                    Card chosen = ((BotPlayer)currentPlayer).BotPlays(getCurrentCard());
+                    if (chosen != null) {
+                        executeMoveSim(currentPlayer, chosen);
+                    } else {
+                        if (state.drawPile.isEmpty()) state.reshuffleDiscardIntoDraw();
+                        Card drawn = state.drawPile.pop();
+                        currentPlayer.receiveCard(drawn);
+                        state.getMatchStats().addMove(currentPlayer.getName(), "pesca una carta");
+                        if (drawn.isPlayableOn(currentCard) || drawn.getColor() == currentColor) {
+                            executeMoveSim(currentPlayer, drawn);
+                        }
+                    }
+                }
+
+                // Controllo Fine Partita
+                if (currentPlayer.getHandSize() == 0) {
+                    if (gameMode.isMatchOver(state)) {
+                        saveStatsForAllPLayers();
+                        globalStats.registerMatch(state.getMatchStats());
+                        matchOver = true;
+                    } else {
+                        // Passaggio al round successivo (Modalità a Punti)
+                        state.initDrawPile();
+                        state.discardPile.clear();
+                        for (Player p : state.players) p.getHand().clear();
+                        prepareDeck();
+                        dealHand(7);
+                        currentCard = state.getTopCards(1).pop();
+                        state.discardPile.add(currentCard);
+                        currentColor = currentCard.getColor();
+                        state.getMatchStats().incrementRounds();
+                    }
+                } else {
+                    state.nextTurn();
+                }
+            }
+        }
+
+        simulationDurationMs = System.currentTimeMillis() - startTime;
+
+        // Risveglia la GUI e mostra le statistiche aggregate
+        javafx.application.Platform.runLater(() -> {
+            view.showPostMatchScreen(globalStats, state.getMatchStats());
+        });
+    }
+
+    // Versioni silenziose per non bloccare/crashare JavaFX
+    private void forcedToDrawSim(Player player, int amountCards) {
+        Stack<Card> penaltyStack = state.getTopCards(amountCards);
+        for(int i = 0; i < amountCards; i++) {
+            Card penaltyCard = penaltyStack.get(i);
+            player.receiveCard(penaltyCard);
+            state.getMatchStats().incrementPointsTo(player, penaltyCard);
+        }
+        state.getMatchStats().incrementPenalties(player);
+        state.getMatchStats().addMove(player.getName(), "ha pescato " + amountCards + " carte di penalità (Simulazione).");
+        resetUnoCondition(player);
+    }
+
+    private void executeMoveSim(Player player, Card chosenCard) {
+        player.removeCard(chosenCard);
+        state.discardPile.add(chosenCard);
+        currentCard = chosenCard;
+        currentColor = chosenCard.getColor();
+        Player nextPlayer = state.getNextPlayer();
+
+        state.getMatchStats().addMove(player.getName(), "gioca " + chosenCard.getColor() + " " + chosenCard.getType());
+
+        if (chosenCard.getType() == CardType.DRAW_TWO) {
+            if (settings.stackingEnabled) {
+                state.pendingDrawPenalty += 2;
+                state.activeStackType = CardType.DRAW_TWO;
+                return; // Il turno non avanza, tocca gestire lo stack
+            } else {
+                forcedToDrawSim(nextPlayer, 2);
+                state.nextTurn();
+            }
+        } else if (chosenCard.getType() == CardType.WILD_DRAW) {
+            currentColor = Color.RED; // Bot sceglie sempre rosso in sim
+            forcedToDrawSim(nextPlayer, 4); // Saltiamo la challenge per velocizzare la simulazione, oppure implementa random
+            state.nextTurn();
+        } else if(chosenCard.getType() == CardType.SKIP) {
+            state.nextTurn(); state.nextTurn();
+        } else if(chosenCard.getType() == CardType.REVERSE){
+            state.invertClock();
+        } else if (chosenCard.getType() == CardType.WILD_JOLLY) {
+            currentColor = Color.RED;
+        }
+
+        // Controllo UNO in Sim (I bot si beccano al 50%)
+        if (player.getHandSize() == 1 && Math.random() > 0.5) {
+            forcedToDrawSim(player, 2);
+            state.getMatchStats().addMove(player.getName(), "dimentica di chiamare UNO e viene beccato.");
+        }
     }
 
 }

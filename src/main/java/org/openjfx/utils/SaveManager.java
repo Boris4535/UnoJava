@@ -30,4 +30,40 @@ public class SaveManager {
             return null;
         }
     }
+
+    // Ottiene la lista di tutti i file di salvataggio
+    public static java.util.List<String> getAvailableSaves() {
+        File dir = new File(SAVE_FOLDER);
+        File[] files = dir.listFiles((d, name) -> name.endsWith(".sav"));
+        java.util.List<String> saves = new java.util.ArrayList<>();
+        if (files != null) {
+            for (File f : files) {
+                saves.add(f.getName().replace(".sav", ""));
+            }
+        }
+        return saves;
+    }
+
+    // Rinomina un file esistente
+    public static boolean renameSave(String oldName, String newName) {
+        File oldFile = new File(SAVE_FOLDER + oldName + ".sav");
+        File newFile = new File(SAVE_FOLDER + newName + ".sav");
+        return oldFile.renameTo(newFile);
+    }
+
+    // Estrae i metadati per l'anteprima del salvataggio
+    public static String getSaveInfo(String filename) {
+        File file = new File(SAVE_FOLDER + filename + ".sav");
+        if (!file.exists()) return "File non trovato.";
+
+        GameState state = loadGame(filename);
+        if (state == null) return " Salvataggio Corrotto o Incompatibile";
+
+        String date = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(file.lastModified());
+        int playersCount = state.players.size();
+        String currentTurn = state.getCurrentPlayer().getName();
+        String mode = (state.settings != null && state.settings.PointsBasedGame) ? "A Punti" : "Singola";
+
+        return String.format("[%s]\nModalità: %s | Giocatori: %d\nTurno di: %s", date, mode, playersCount, currentTurn);
+    }
 }

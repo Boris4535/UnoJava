@@ -1,5 +1,7 @@
 package org.openjfx.model;
 
+import java.io.Serializable;
+
 /*
  *Le statistiche devono includere almeno:
 numero di partite vinte da ciascun giocatore o profilo di bot;
@@ -10,7 +12,7 @@ numero totale di challenge;
 numero totale di penalità applicate.
  *
  */
-public class PlayerStats {
+public class PlayerStats implements Serializable {
     private int wonMatches = 0;
     private int overallScore = 0;
     private int totalMatches = 0;

@@ -1,8 +1,9 @@
 package org.openjfx.model;
 
+import java.io.Serializable;
 import java.util.*;
 
-public abstract class Player {
+public abstract class Player implements Serializable {
     public String name;
     private List<Card> hand = new LinkedList<>();
     private boolean hasCalledUno = false;

@@ -1,8 +1,9 @@
 package org.openjfx.model;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Card {
+public class Card implements Serializable {
     private Color color;
     private CardType type;
     private int value = -1;

@@ -1,61 +1,76 @@
-/* CRUELTY UNO - DIO NON TI HA LASCIATO NULLA A QUESTO MONDO*/
-/* Yep this is the gorbino's quest, the gorbino's quest of card games */
+/* CRUELTY UNO - DIO NON TI HA LASCIATO NULLA A QUESTO MONDO          */
+/* Yep this is the gorbino's quest, the gorbino's quest of card games  */
+/* FLESH. DEBT. CARDS.                                                  */
 
 .root {
-    -fx-background-color: #2b003b;
+    /* Sfondo base: verde carne marcescente */
+    -fx-background-color: #0d1a00;
 
-    -fx-background-image: repeating-linear-gradient(
-            to bottom,
-            transparent,
-            transparent 2px,
-            rgba(255, 0, 255, 0.1) 2px,
-            rgba(255, 0, 255, 0.1) 4px
+    /*
+     * Layer 1: scanlines orizzontali serrate (ogni 3px)
+     * Layer 2: diagonali a 60deg strettissime, rosso sangue su nero
+     * Layer 3: griglia verticale in verde acido semitrasparente
+     * JavaFX supporta un solo -fx-background-* alla volta,
+     * quindi usiamo il colore base + inner-shadow per simulare il pattern.
+     */
+    -fx-background-color: repeating-linear-gradient(
+            0deg,
+            #0d1a00 0px,
+            #0d1a00 2px,
+            #1a3300 2px,
+            #1a3300 3px
     );
-    -fx-font-family: "Monospaced", monospace;
+
+    -fx-font-family: "Courier New", "Monospaced", monospace;
+    -fx-font-size: 14px;
+
+    -fx-effect: innershadow(two-pass-box, #ff00ff, 80, 0.3, 0, 0);
 }
 
-
-.button {
-    -fx-background-color: linear-gradient(to bottom right, #ff0000, #00ffff);
-    -fx-border-color: #ffff00 #ff00ff #00ff00 #ff0000;
-    -fx-border-width: 6px 3px 8px 2px;
-    -fx-border-style: solid dashed dotted double;
-    -fx-text-fill: #000000;
-    -fx-font-family: "Times New Roman";
+.label {
+    -fx-text-fill: #39ff14;
+    -fx-background-color: #1a0000;
+    -fx-border-color: #ff0055 #00ff99 #ff0055 #00ff99;
+    -fx-border-width: 3px 1px 3px 1px;
+    -fx-border-style: solid dotted solid dotted;
+    -fx-font-family: "Courier New", monospace;
     -fx-font-weight: 900;
-    -fx-cursor: wait;
-}
-
-.weird-band {
-    -fx-background-color: #111111;
-    -fx-background-image: repeating-linear-gradient(45deg, #2b0000 0, #2b0000 10px, #000000 10px, #000000 20px);
-    -fx-border-color: #4a0000;
-    -fx-border-width: 2px 0 2px 0;
+    -fx-font-size: 15px;
+    -fx-padding: 4 11 3 8;
+    -fx-rotate: -2;
+    -fx-effect: dropshadow(one-pass-box, #ff0055, 6, 0.8, 2, 2);
 }
 
 .label.hieroglyphs {
-    -fx-text-fill: #3a3a20;
-    -fx-font-size: 28px;
+    -fx-text-fill: #2a1a00;
+    -fx-font-size: 32px;
+    -fx-font-family: "Wingdings", "Webdings", "Symbol", monospace;
     -fx-font-weight: bold;
-    -fx-opacity: 0.6;
+    -fx-opacity: 0.45;
     -fx-background-color: transparent;
     -fx-border-color: transparent;
-    -fx-rotate: 0;
+    -fx-rotate: -3;
     -fx-padding: 0;
-    -fx-effect: none;
+    -fx-effect: dropshadow(one-pass-box, #ff6600, 4, 0.5, 0, 1);
+    -fx-letter-spacing: 8px;
 }
 
-
-
-.label {
-    -fx-text-fill: #00ff00;
-    -fx-background-color: #8b008b;
-    -fx-border-color: #ffff00;
-    -fx-border-width: 2px;
-    -fx-font-weight: 900;
-    -fx-font-size: 16px;
-    -fx-padding: 3 9 2 7;
-    -fx-rotate: -1;
+.weird-band {
+    -fx-background-color: repeating-linear-gradient(
+            60deg,
+            #330000 0px,
+            #330000 8px,
+            #000000 8px,
+            #000000 12px,
+            #001a00 12px,
+            #001a00 16px,
+            #000000 16px,
+            #000000 20px
+    );
+    -fx-border-color: #ff0055;
+    -fx-border-width: 3px 0 3px 0;
+    -fx-effect: dropshadow(two-pass-box, #ff0055, 12, 0.6, 0, 3);
+    -fx-padding: 4 0 4 0;
 }
 
 .button {
@@ -84,32 +99,226 @@
     -fx-rotate: 3;
 }
 
+
 .text-field {
-    -fx-background-color: #ffff00;
-    -fx-text-fill: #ff00ff;
-    -fx-border-color: #ff0000;
-    -fx-border-width: 4px;
-    -fx-border-style: solid;
+    -fx-background-color: #000800;
+    -fx-text-fill: #39ff14;
+    -fx-border-color: #ff0055 #ff0055 #39ff14 #ff0055;
+    -fx-border-width: 1px 4px 3px 1px;
+    -fx-border-style: dotted solid solid dashed;
+    -fx-font-family: "Courier New", monospace;
     -fx-font-weight: 900;
+    -fx-font-size: 15px;
+    -fx-padding: 6 8;
+    -fx-prompt-text-fill: #334d00;
+    -fx-effect: innershadow(one-pass-box, #ff0055, 8, 0.4, 0, 0);
 }
 
 .text-field:focused {
-    -fx-background-color: #00ff00;
-    -fx-text-fill: #000000;
-    -fx-border-color: #ff00ff;
+    -fx-background-color: #001a00;
+    -fx-text-fill: #ffffff;
+    -fx-border-color: #39ff14 #ff00ff #39ff14 #ff00ff;
+    -fx-border-width: 2px 3px 2px 3px;
+    -fx-effect: dropshadow(two-pass-box, #39ff14, 12, 0.7, 0, 0)
+    innershadow(one-pass-box, #ff00ff, 6, 0.3, 0, 0);
 }
+
+
+.check-box {
+    -fx-text-fill: #ff9900;
+    -fx-font-family: "Courier New", monospace;
+    -fx-font-weight: 900;
+    -fx-font-size: 13px;
+}
+
+.check-box .box {
+    -fx-background-color: #1a0000;
+    -fx-border-color: #ff0055;
+    -fx-border-width: 2px;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
+}
+
+.check-box:selected .box {
+    -fx-background-color: #ff0055;
+    -fx-border-color: #39ff14;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: #000000;
+}
+
+
+.spinner {
+    -fx-background-color: #000800;
+    -fx-border-color: #ff0055;
+    -fx-border-width: 2px;
+}
+
+.spinner .text-field {
+    -fx-background-color: #000800;
+    -fx-text-fill: #ff9900;
+    -fx-border-width: 0;
+    -fx-effect: none;
+}
+
+.spinner .increment-arrow-button,
+.spinner .decrement-arrow-button {
+    -fx-background-color: #1a0000;
+    -fx-border-color: #ff0055;
+    -fx-border-width: 1px;
+    -fx-cursor: hand;
+}
+
+.spinner .increment-arrow-button:hover,
+.spinner .decrement-arrow-button:hover {
+    -fx-background-color: #ff0055;
+}
+
+
+.toggle-button {
+    -fx-background-color: #000000;
+    -fx-border-color: #ff9900;
+    -fx-border-width: 2px;
+    -fx-border-style: dashed;
+    -fx-text-fill: #ff9900;
+    -fx-font-family: "Courier New", monospace;
+    -fx-font-weight: 900;
+    -fx-font-size: 14px;
+    -fx-padding: 6 14;
+    -fx-cursor: hand;
+}
+
+.toggle-button:selected {
+    -fx-background-color: #ff9900;
+    -fx-text-fill: #000000;
+    -fx-border-color: #ff0055;
+    -fx-border-style: solid;
+    -fx-effect: dropshadow(one-pass-box, #ff9900, 8, 0.6, 0, 0);
+}
+
 
 .scroll-pane {
     -fx-background-color: transparent;
-    -fx-border-color: #00ffff;
-    -fx-border-width: 3px;
+    -fx-border-color: #39ff14;
+    -fx-border-width: 2px;
+    -fx-border-style: dashed;
+    -fx-padding: 0;
 }
 
-.scroll-bar:vertical, .scroll-bar:horizontal {
-    -fx-background-color: #ff0000;
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:vertical,
+.scroll-bar:horizontal {
+    -fx-background-color: #1a0000;
+    -fx-border-color: #ff0055;
+    -fx-border-width: 1px;
+    -fx-pref-width: 10px;
+    -fx-pref-height: 10px;
 }
 
 .scroll-bar .thumb {
-    -fx-background-color: #ffff00;
+    -fx-background-color: repeating-linear-gradient(
+            45deg,
+            #ff0055 0px,
+            #ff0055 3px,
+            #000000 3px,
+            #000000 6px
+    );
     -fx-background-radius: 0;
+    -fx-border-color: #39ff14;
+    -fx-border-width: 1px;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #ff0055;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: #0d1a00;
+    -fx-border-color: #39ff14;
+    -fx-border-width: 1px;
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-background-color: #39ff14;
+}
+
+/* ================================================================== */
+/*  ID SPECIFICI — tavolo da gioco e UI di partita                     */
+/* ================================================================== */
+
+/* Area tavolo principale */
+#tableArea {
+    -fx-background-color: #050d00;
+    -fx-border-color: #ff0055 #39ff14 #ff0055 #39ff14;
+    -fx-border-width: 4px 2px 4px 2px;
+    -fx-border-style: solid dashed solid dashed;
+    -fx-effect: innershadow(two-pass-box, #39ff14, 30, 0.2, 0, 0);
+}
+
+/* Label giocatore corrente — deve essere leggibile ma inquietante */
+#lblCurrentPlayer {
+    -fx-text-fill: #ff9900;
+    -fx-background-color: #1a0000;
+    -fx-border-color: #ff9900;
+    -fx-border-width: 2px;
+    -fx-border-style: solid;
+    -fx-font-size: 18px;
+    -fx-font-weight: 900;
+    -fx-padding: 5 14 4 14;
+    -fx-rotate: 0;
+    -fx-effect: dropshadow(one-pass-box, #ff9900, 10, 0.7, 0, 0);
+}
+
+/* Label messaggi di sistema */
+#lblMessage {
+    -fx-text-fill: #ff0055;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-font-size: 14px;
+    -fx-font-weight: 900;
+    -fx-font-family: "Courier New", monospace;
+    -fx-rotate: -1;
+    -fx-effect: dropshadow(one-pass-box, #ff0055, 8, 0.9, 1, 1);
+}
+
+/* Box carte in mano */
+#playerHandBox {
+    -fx-background-color: #000800;
+    -fx-border-color: #39ff14;
+    -fx-border-width: 2px 0 0 0;
+    -fx-border-style: dashed;
+    -fx-padding: 8 4 4 4;
+}
+
+/* Bottone UNO — l'unico bottone speciale, più grosso degli altri */
+#btnCallUno {
+    -fx-background-color: #ff0055;
+    -fx-text-fill: #000000;
+    -fx-border-color: #ffff00;
+    -fx-border-width: 3px;
+    -fx-border-style: solid;
+    -fx-font-size: 22px;
+    -fx-font-weight: 900;
+    -fx-padding: 12 28;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(two-pass-box, #ff0055, 18, 0.8, 0, 0);
+}
+
+#btnCallUno:hover {
+    -fx-background-color: #ffff00;
+    -fx-text-fill: #ff0055;
+    -fx-border-color: #ff0055;
+    -fx-effect: dropshadow(two-pass-box, #ffff00, 22, 0.9, 0, 0);
+}
+
+#btnCallUno:pressed {
+    -fx-scale-x: 1.2;
+    -fx-scale-y: 0.8;
+    -fx-rotate: -5;
 }

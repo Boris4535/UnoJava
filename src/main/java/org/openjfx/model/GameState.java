@@ -1,13 +1,14 @@
 package org.openjfx.model;
 
 
+import java.io.Serializable;
 import java.util.*;
 
 import static org.openjfx.model.Color.*;
 import static org.openjfx.model.CardType.*;
 
 
-public class GameState {
+public class GameState implements Serializable {
     public Stack<Card> drawPile = new Stack<>();
     public Stack<Card> discardPile = new Stack<>();
     public List<Player> players;
@@ -17,6 +18,7 @@ public class GameState {
     public int pendingDrawPenalty = 0;
     public CardType activeStackType = null;
     MatchStats matchStats; // tiene le statistiche di ogni singola partita
+    public MatchSettings settings;
 
     public GameState() {
         initDrawPile();
@@ -105,5 +107,12 @@ public class GameState {
         return this.matchStats;
     }
 
-    public void reshuffleDiscardIntoDraw(){ drawPile = shuffle(discardPile);}
+    public void setMatchStats(MatchStats matchStats) {
+        this.matchStats = matchStats;
+    }
+
+    public void reshuffleDiscardIntoDraw(){
+        drawPile = shuffle(discardPile);
+        discardPile.clear(); //Mancava ripulire la pila dopo rimescolato
+    }
 }

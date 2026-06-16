@@ -1,9 +1,10 @@
 package org.openjfx.model;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Random;
 
-public class BotPlayer extends Player {
+public class BotPlayer extends Player implements Serializable {
 
     private BotType personality;
     private Random random = new Random();
@@ -19,7 +20,7 @@ public class BotPlayer extends Player {
         return switch(personality){
             case STUPID -> StupidPlay(playable);
             case CLEVER -> CleverPlay(playable);
-            case CHEEKY -> null;
+            case CHEEKY -> CheekyPlay(playable, current);
         };
     }
 

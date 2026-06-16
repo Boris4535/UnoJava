@@ -44,6 +44,8 @@
                                 <CheckBox fx:id="chkStacking" mnemonicParsing="false" text="Stacking (+2 / +4)" />
                                 <CheckBox fx:id="chkNumberRush" mnemonicParsing="false" text="Number Rush" />
                                 <CheckBox fx:id="chkSevenZero" mnemonicParsing="false" text="Seven-Zero Rule" />
+                                <CheckBox fx:id="chkPrivacy" mnemonicParsing="false" text="Privacy Mode" />
+
                             </children>
                         </VBox>
 
@@ -53,6 +55,15 @@
                             <Spinner fx:id="spinnerPlayers" prefWidth="70.0" />
                         </HBox>
                         <VBox fx:id="playersContainer" spacing="8.0" />
+
+                        <Label text="Simulazione Batch (Gruppo da 3)" style="-fx-text-fill: #00ff00; -fx-font-weight: bold; -fx-padding: 10 0 0 0;" />
+                        <HBox spacing="15.0" alignment="CENTER_LEFT">
+                            <children>
+                                <CheckBox fx:id="chkSimulation" mnemonicParsing="false" text="Attiva Simulazione" />
+                                <Label text="Numero Partite:" />
+                                <TextField fx:id="txtSimCount" promptText="100" prefWidth="60.0" />
+                            </children>
+                        </HBox>
 
                     </children>
                     <padding>

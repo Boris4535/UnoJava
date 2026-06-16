@@ -1,18 +1,21 @@
 package org.openjfx.model;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 import static org.openjfx.model.CardType.SKIP;
 
-public class MatchStats {
+public class MatchStats implements Serializable {
 
     private int numOfRounds = 0;
     private int numNumOfTurns = 0;
     private Map<Player,Integer> pointsPerPlayer;
     private Map<Player,Integer> penaltiesPerPlayer;
     private Map<Player,Integer> challengesPerPlayer;
+    private List<Move> moveHistory = new ArrayList<>();
 
     public MatchStats(List<Player> players){
         pointsPerPlayer = new HashMap<>();
@@ -24,7 +27,18 @@ public class MatchStats {
             penaltiesPerPlayer.put(p,0);
             challengesPerPlayer.put(p,0);
         }
+
     }
+
+
+    public void addMove(String playerName, String action) {
+        moveHistory.add(new Move(playerName, action));
+    }
+    public List<Move> getMoveHistory() {
+        return moveHistory;
+    }
+
+
 
 
     public void incrementRounds(){
@@ -99,5 +113,6 @@ public class MatchStats {
     public Map<Player, Integer> getChallengesPerPlayer() {
         return challengesPerPlayer;
     }
+
 
 }

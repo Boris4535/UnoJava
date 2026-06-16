@@ -17,8 +17,7 @@
         </padding>
         <children>
             <Button mnemonicParsing="false" onAction="#beginGame" prefHeight="60.0" prefWidth="250.0" text="NUOVA PARTITA" />
-            <Button disable="true" mnemonicParsing="false" text="CARICA PARTITA" prefHeight="40.0" prefWidth="250.0" />
-            <Button disable="true" mnemonicParsing="false" onAction="#goToSettings" prefHeight="40.0" prefWidth="250.0" text="IMPOSTAZIONI" />
+            <Button mnemonicParsing="false" onAction="#onLoadGameClicked" prefHeight="40.0" prefWidth="250.0" text="CARICA PARTITA" />
         </children>
     </VBox>
 

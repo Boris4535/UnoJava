@@ -17,7 +17,11 @@ public class SetupController {
     @FXML private CheckBox     chkNumberRush;
     @FXML private CheckBox     chkSevenZero;
     @FXML private VBox         playersContainer;
+    @FXML private CheckBox     chkPrivacy;
     @FXML private Spinner<Integer> spinnerPlayers;
+
+    @FXML private CheckBox chkSimulation;
+    @FXML private TextField txtSimCount;
 
     public static final int DEFAULT_PLAYERS = 2;
 
@@ -48,6 +52,26 @@ public class SetupController {
         });
 
         buildPlayerRows(DEFAULT_PLAYERS);
+
+        if (chkSimulation != null && txtSimCount != null) {
+            txtSimCount.setDisable(true);
+            chkSimulation.selectedProperty().addListener((obs, oldVal, newVal) -> {
+                txtSimCount.setDisable(!newVal);
+                for (var node : playersContainer.getChildren()) {
+                    HBox row = (HBox) node;
+                    ComboBox<String> cmbTipo = (ComboBox<String>) row.getChildren().get(2);
+                    ComboBox<String> cmbBotProfile = (ComboBox<String>) row.getChildren().get(3);
+
+                    if (newVal) {
+                        cmbTipo.setValue("Bot");
+                        cmbTipo.setDisable(true); // Forza a Bot e blocca
+                        cmbBotProfile.setVisible(true); // Mostra i profili
+                    } else {
+                        cmbTipo.setDisable(false); // Sblocca
+                    }
+                }
+            });
+        }
     }
 
     public void buildPlayerRows(int count) {
@@ -57,14 +81,40 @@ public class SetupController {
             label.setPrefWidth(90);
 
             TextField txtNome = new TextField("Giocatore " + (i + 1));
-            txtNome.setPrefWidth(150);
+            txtNome.setPrefWidth(120);
 
             ComboBox<String> cmbTipo = new ComboBox<>();
             cmbTipo.getItems().addAll("Umano", "Bot");
             cmbTipo.setValue("Umano");
 
-            HBox row = new HBox(10, label, txtNome, cmbTipo);
+            // Nuova ComboBox per il profilo Bot
+            ComboBox<String> cmbBotProfile = new ComboBox<>();
+            cmbBotProfile.getItems().addAll("STUPID", "CLEVER", "CHEEKY");
+            cmbBotProfile.setValue("STUPID");
+            cmbBotProfile.setVisible(false); // Nascosta di default perché si parte da "Umano"
+            cmbBotProfile.setPrefWidth(90);
+
+            // Listener per mostrare/nascondere il profilo in base alla scelta
+            cmbTipo.setOnAction(e -> {
+                cmbBotProfile.setVisible(cmbTipo.getValue().equals("Bot"));
+            });
+
+            HBox row = new HBox(10, label, txtNome, cmbTipo, cmbBotProfile);
             playersContainer.getChildren().add(row);
+        }
+    }
+
+    @FXML
+    public void onLoadGameClicked() throws IOException {
+        GameState loadedState = org.openjfx.utils.SaveManager.loadGame("Slot1");
+
+        if (loadedState != null) {
+            FXMLLoader loader = App.getLoader("Tavolo");
+            TavoloController tavoloController = loader.getController();
+
+            tavoloController.loadExistingGame(loadedState);
+        } else {
+            System.out.println("Nessun salvataggio trovato.");
         }
     }
 
@@ -77,11 +127,13 @@ public class SetupController {
 
             if (nome.isEmpty()) nome = "Giocatore " + (players.size() + 1);
 
-            players.add(new HumanPlayer(nome));
             if (tipo.equals("Bot")) {
-                // Per ora mettiamo STUPID di default, poi se vuoi puoi aggiungere una ComboBox per la difficoltà
-                BotPlayer bot = new BotPlayer(BotType.STUPID);
-                bot.setName(nome + " [BOT]");
+                // Leggiamo il valore della quarta colonna (indice 3)
+                String profileString = ((ComboBox<?>) row.getChildren().get(3)).getValue().toString();
+                BotType profile = BotType.valueOf(profileString); // Converte la stringa nell'Enum
+
+                BotPlayer bot = new BotPlayer(profile);
+                bot.setName(nome + " [" + profileString + "]");
                 players.add(bot);
             } else {
                 players.add(new HumanPlayer(nome));
@@ -107,6 +159,17 @@ public class SetupController {
         settings.numberRushEnabled = chkNumberRush.isSelected();
         settings.sevenZeroEnabled  = chkSevenZero.isSelected();
         settings.Players           = readPlayers();
+
+        settings.privacyModeEnabled = chkPrivacy != null && chkPrivacy.isSelected();
+
+        settings.simulationModeEnabled = chkSimulation != null && chkSimulation.isSelected();
+        if (settings.simulationModeEnabled && txtSimCount != null && !txtSimCount.getText().isEmpty()) {
+            try {
+                settings.numSimulations = Integer.parseInt(txtSimCount.getText());
+            } catch (NumberFormatException e) {
+                settings.numSimulations = 100; // Default sicuro
+            }
+        }
 
         FXMLLoader loader = App.getLoader("Tavolo");
         TavoloController tavoloController = loader.getController();

@@ -1,6 +1,8 @@
 package org.openjfx.model;
 
-public class HumanPlayer extends Player{
+import java.io.Serializable;
+
+public class HumanPlayer extends Player implements Serializable {
 
     //You are a flesh automaton animated by neurotransmitters
     public HumanPlayer(String name){
