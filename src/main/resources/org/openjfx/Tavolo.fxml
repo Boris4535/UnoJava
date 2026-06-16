@@ -14,24 +14,10 @@
             fx:controller="org.openjfx.controller.TavoloController">
 
    <top>
-      <VBox styleClass="weird-band" alignment="CENTER" prefHeight="50.0">
-         <Label fx:id="faceTop" styleClass="opponent-label" text="" />
+      <VBox styleClass="weird-band" alignment="CENTER" prefHeight="80.0" BorderPane.alignment="CENTER">
+         <HBox fx:id="opponentsBox" alignment="CENTER" spacing="30.0" />
       </VBox>
    </top>
-   <left>
-      <VBox styleClass="weird-band" alignment="CENTER" prefWidth="50.0">
-         <Group>
-            <Label fx:id="faceLeft" styleClass="opponent-label" rotate="-90" />
-         </Group>
-      </VBox>
-   </left>
-   <right>
-      <VBox styleClass="weird-band" alignment="CENTER" prefWidth="50.0">
-         <Group>
-            <Label fx:id="faceRight" styleClass="opponent-label" rotate="90" />
-         </Group>
-      </VBox>
-   </right>
 
    <bottom>
       <VBox spacing="10.0" BorderPane.alignment="CENTER" style="-fx-background-color: #0a0a0a; -fx-border-color: #2b0000; -fx-border-width: 5 0 0 0; -fx-padding: 10;">

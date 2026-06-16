@@ -35,6 +35,8 @@ public class TavoloController implements GameView {
     @FXML private Label faceLeft;
     @FXML private Label faceRight;
 
+    @FXML private HBox opponentsBox;
+
     private StackPane privacyOverlay;
     private Label lblPrivacy;
 
@@ -393,20 +395,19 @@ public class TavoloController implements GameView {
         List<Player> opponents = new java.util.ArrayList<>(allPlayers);
         opponents.remove(currentPlayer);
 
-        if (faceTop != null) faceTop.setText("");
-        if (faceLeft != null) faceLeft.setText("");
-        if (faceRight != null) faceRight.setText("");
+        // Svuota il contenitore a ogni aggiornamento
+        opponentsBox.getChildren().clear();
 
-        for (int i = 0; i < opponents.size(); i++) {
-            Player opp = opponents.get(i);
-
+        for (Player opp : opponents) {
             String cardBacks = "█ ".repeat(opp.getHandSize());
-            String info = opp.getName() + " - " + opp.getHandSize() + " carte\n" + cardBacks;
+            String info = opp.getName() + "\n" + opp.getHandSize() + " carte\n" + cardBacks;
 
-            // Assegna il testo in base al numero di avversario
-            if (i == 0 && faceTop != null) faceTop.setText(info);
-            else if (i == 1 && faceLeft != null) faceLeft.setText(info);
-            else if (i == 2 && faceRight != null) faceRight.setText(info);
+            // Crea l'etichetta dinamicamente
+            Label oppLabel = new Label(info);
+            oppLabel.getStyleClass().add("opponent-label"); // Assegna il CSS
+
+            // Aggiungila alla HBox in alto
+            opponentsBox.getChildren().add(oppLabel);
         }
     }
 

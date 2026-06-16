@@ -132,6 +132,7 @@ public class GameEngine {
      */
     public void startTurn()
     {
+
         state.getMatchStats().incrementTurns();
         hasDrawnThisTurn = false;
         Player currentPlayer = state.getCurrentPlayer();
@@ -149,7 +150,7 @@ public class GameEngine {
         //Controllo se c'è lo stacking all'inizio
 
         view.onTurnChanged(currentPlayer);
-
+        view.updateOpponentsStatus(state.players, currentPlayer);
         if (state.pendingDrawPenalty > 0) {
             handleStackingPhase(currentPlayer);
             return; // Fermiamo l'esecuzione normale del turno
