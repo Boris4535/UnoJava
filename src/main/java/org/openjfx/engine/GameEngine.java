@@ -69,7 +69,7 @@ public class GameEngine {
 
     /** dealHand() distributes a specified number of cards to each player.
 
-    /** distributes a specified number of cards to each player.
+     /** distributes a specified number of cards to each player.
      * @param cardsPerPlayer
      */
     public void dealHand(int cardsPerPlayer) {
@@ -90,7 +90,8 @@ public class GameEngine {
      * and getting the turns started.
      */
     public void startGame() {
-        state.setMatchStats(new MatchStats(state.players));
+        state.setMatchStats(new MatchStats(state.players, this.settings));
+        state.getMatchStats().setCustomScoring(settings.customScoringEnabled);
 
         //state.matchStats = new MatchStats(state.players);
 
@@ -205,8 +206,28 @@ public class GameEngine {
         if (!(human instanceof HumanPlayer)) return;
 
         if (chosenCard.isPlayableOn(currentCard) || chosenCard.getColor() == currentColor) {
+            // CONTROLLO NUMBER RUSH
+            if (settings.numberRushEnabled && chosenCard.getType() == CardType.NUMBERS) {
+                List<Card> sameNumbers = human.getHand().stream()
+                        .filter(c -> c.getType() == CardType.NUMBERS && c.getValue() == chosenCard.getValue())
+                        .toList();
+                if (sameNumbers.size() > 1) {
+                    // Li gioca tutti insieme
+                    for (Card c : sameNumbers) {
+                        state.getMatchStats().decrementPointsTo(human, c);
+                        human.removeCard(c);
+                        state.discardPile.add(c);
+                    }
+                    currentCard = sameNumbers.get(sameNumbers.size() - 1);
+                    currentColor = currentCard.getColor();
+                    view.updateTopCard(currentCard);
+                    state.getMatchStats().addMove(human.getName(), "esegue un NUMBER RUSH scartando " + sameNumbers.size() + " carte di valore " + chosenCard.getValue());
+                    endTurn();
+                    return;
+                }
+            }
             state.getMatchStats().decrementPointsTo(human,chosenCard);
-      
+
             executeMove(human, chosenCard);
         } else {
             view.showMessage("Mossa non valida!");
@@ -263,12 +284,11 @@ public class GameEngine {
      * @param chosenCard
      */
 
-    public void executeMove(Player player, Card chosenCard){
+    public void executeMove(Player player, Card chosenCard) {
         Color colorBeforePlay = currentColor;
 
         // cancelliamo carta dal mazzo
         player.removeCard(chosenCard);
-        Map<Player,Integer> playerChallenges = state.getMatchStats().getPenaltiesPerPlayer();
 
         // buttiamo carta a terra
         state.discardPile.add(chosenCard);
@@ -304,12 +324,12 @@ public class GameEngine {
             if (settings.stackingEnabled) {
                 state.pendingDrawPenalty += 2;
                 state.activeStackType = CardType.DRAW_TWO;
-            // Il giocatore successivo NON salta subito, toccherà a lui gestire il problema
+                // Il giocatore successivo NON salta subito, toccherà a lui gestire il problema
                 state.nextTurn();
                 startTurn();
                 return;
             } else {
-            // Logica classica UNO
+                // Logica classica UNO
                 forcedToDraw(nextPlayer, 2);
                 state.nextTurn(); // Salta
             }
@@ -320,25 +340,33 @@ public class GameEngine {
             } else {
                 chooseColor(botChooseColor(((BotPlayer) nextPlayer))); // Stupid e clever, scelgono a caso, cheeky sceglie uno diverso da quello attuale
             }
-            boolean wantsToChallenge = false;
-            if (nextPlayer instanceof HumanPlayer) {
-                wantsToChallenge = view.askForChallenge(player.getName(), nextPlayer.getName());
-            } else {
-                // 50% stupid, 25% clever, 75% cheeky
-                wantsToChallenge = botChallenge((BotPlayer) player);
-            }
 
-            if (wantsToChallenge) {
-                evokeChallenge(nextPlayer, player, colorBeforePlay); // player=chi ha lanciato, nextPlayer=chi subisce
-                //Little fix here ^^^^, sistemato i parametri
+            // GESTIONE STACKING PER IL +4
+            if (settings.stackingEnabled) {
+                state.pendingDrawPenalty += 4;
+                state.activeStackType = CardType.WILD_DRAW;
+                state.nextTurn();
+                startTurn();
+                return;
             } else {
-                forcedToDraw(nextPlayer, 4);
+                // Logica normale con Challenge se lo stacking è disabilitato
+                boolean wantsToChallenge = false;
+                if (nextPlayer instanceof HumanPlayer) {
+                    wantsToChallenge = view.askForChallenge(player.getName(), nextPlayer.getName());
+                } else {
+                    wantsToChallenge = botChallenge((BotPlayer) player);
+                }
+                if (wantsToChallenge) {
+                    evokeChallenge(nextPlayer, player, colorBeforePlay);
+                } else {
+                    forcedToDraw(nextPlayer, 4);
+                }
+                state.nextTurn();
             }
-            state.nextTurn();
-        }else if(chosenCard.getType() == CardType.SKIP) {
+        } else if (chosenCard.getType() == CardType.SKIP) {
             state.nextTurn();
             state.nextTurn(); //Real skip qui
-        }else if(chosenCard.getType() == CardType.REVERSE){
+        } else if (chosenCard.getType() == CardType.REVERSE) {
             state.invertClock();
 
         } else if (chosenCard.getType() == CardType.WILD_JOLLY) {
@@ -346,12 +374,14 @@ public class GameEngine {
             if (player instanceof HumanPlayer) {
                 chooseColor(view.chooseWildColor());
             } else {
-                chooseColor(Color.RED); // Bot sceglie rosso
+                chooseColor(Color.RED); // Bot sceglie rosso <--- chiamo la shit del bot dopo qui
             }
-        }if (player.getHandSize() == 1 && !player.getHasCalledUno()) {
+        }
+
+        // Controllo UNO dimenticato
+        if (player.getHandSize() == 1 && !player.getHasCalledUno()) {
             boolean busted = false;
             for (Player p : state.players) {
-                // I bot hanno il 50% di probabilità di sgamarlo Leon nn so s
                 if (p instanceof BotPlayer && Math.random() > 0.5) {
                     state.getMatchStats().addMove(p.getName(), "ha sgamato " + player.getName() + " che non ha detto UNO!");
                     view.showMessage(p.getName() + " ha contestato l'UNO di " + player.getName() + "!");
@@ -372,13 +402,12 @@ public class GameEngine {
         for (Player p : state.players) {
             if (p.getHandSize() == 1 && !p.getHasCalledUno()) {
                 for (Player checker : state.players) {
-                    // Un bot controlla gli avversari (50% di probabilità di accorgersene)
                     if (checker instanceof BotPlayer && checker != p && Math.random() > 0.5) {
                         state.getMatchStats().addMove(checker.getName(), "ha contestato la mancata dichiarazione di " + p.getName());
                         view.showMessage(checker.getName() + " ha contestato l'UNO di " + p.getName() + "!");
                         forcedToDraw(p, 2);
                         p.setHasCalledUno(true);
-                        break; // Basta una contestazione
+                        break;
                     }
                 }
             }
@@ -432,7 +461,7 @@ public class GameEngine {
             resetUnoCondition(challenged);
             forcedToDraw(challenged, 2);
         }
-            // SLAVA: view puniscilo!!!
+        // SLAVA: view puniscilo!!!
 
     }
 
@@ -660,96 +689,6 @@ public class GameEngine {
      * Motore di simulazione Batch: esegue X partite consecutivamente senza aggiornare la GUI,
      * calcolando solo le statistiche. Gira su un Thread separato.
      */
-    public void runBatchSimulation() {
-        long startTime = System.currentTimeMillis();
-
-        for (int i = 0; i < settings.numSimulations; i++) {
-            // Reset totale per la nuova partita
-            state.initDrawPile();
-            state.discardPile.clear();
-            for (Player p : state.players) p.getHand().clear();
-
-            state.setMatchStats(new MatchStats(state.players));
-            state.getMatchStats().incrementRounds();
-            prepareDeck();
-            dealHand(7);
-            currentCard = state.getTopCards(1).pop();
-            state.discardPile.add(currentCard);
-            currentColor = currentCard.getColor();
-
-            boolean matchOver = false;
-            while (!matchOver) {
-                Player currentPlayer = state.getCurrentPlayer();
-                state.getMatchStats().incrementTurns();
-
-                // Logica del Turno Bot (senza interfaccia)
-                if (state.pendingDrawPenalty > 0) {
-                    boolean canDefend = currentPlayer.getHand().stream().anyMatch(c -> c.getType() == state.activeStackType);
-                    if (!canDefend) {
-                        forcedToDrawSim(currentPlayer, state.pendingDrawPenalty);
-                        state.pendingDrawPenalty = 0;
-                        state.activeStackType = null;
-                    }
-                } else {
-                    Card chosen = ((BotPlayer)currentPlayer).BotPlays(getCurrentCard());
-                    if (chosen != null) {
-                        executeMoveSim(currentPlayer, chosen);
-                    } else {
-                        if (state.drawPile.isEmpty()) state.reshuffleDiscardIntoDraw();
-                        Card drawn = state.drawPile.pop();
-                        currentPlayer.receiveCard(drawn);
-                        state.getMatchStats().addMove(currentPlayer.getName(), "pesca una carta");
-                        if (drawn.isPlayableOn(currentCard) || drawn.getColor() == currentColor) {
-                            executeMoveSim(currentPlayer, drawn);
-                        }
-                    }
-                }
-
-                // Controllo Fine Partita
-                if (currentPlayer.getHandSize() == 0) {
-                    if (gameMode.isMatchOver(state)) {
-                        saveStatsForAllPLayers();
-                        globalStats.registerMatch(state.getMatchStats());
-                        matchOver = true;
-                    } else {
-                        // Passaggio al round successivo (Modalità a Punti)
-                        state.initDrawPile();
-                        state.discardPile.clear();
-                        for (Player p : state.players) p.getHand().clear();
-                        prepareDeck();
-                        dealHand(7);
-                        currentCard = state.getTopCards(1).pop();
-                        state.discardPile.add(currentCard);
-                        currentColor = currentCard.getColor();
-                        state.getMatchStats().incrementRounds();
-                    }
-                } else {
-                    state.nextTurn();
-                }
-            }
-        }
-
-        simulationDurationMs = System.currentTimeMillis() - startTime;
-
-        // Risveglia la GUI e mostra le statistiche aggregate
-        javafx.application.Platform.runLater(() -> {
-            view.showPostMatchScreen(globalStats, state.getMatchStats());
-        });
-    }
-
-    // Versioni silenziose per non bloccare/crashare JavaFX
-    private void forcedToDrawSim(Player player, int amountCards) {
-        Stack<Card> penaltyStack = state.getTopCards(amountCards);
-        for(int i = 0; i < amountCards; i++) {
-            Card penaltyCard = penaltyStack.get(i);
-            player.receiveCard(penaltyCard);
-            state.getMatchStats().incrementPointsTo(player, penaltyCard);
-        }
-        state.getMatchStats().incrementPenalties(player);
-        state.getMatchStats().addMove(player.getName(), "ha pescato " + amountCards + " carte di penalità (Simulazione).");
-        resetUnoCondition(player);
-    }
-
     private void executeMoveSim(Player player, Card chosenCard) {
         player.removeCard(chosenCard);
         state.discardPile.add(chosenCard);
@@ -769,15 +708,30 @@ public class GameEngine {
                 state.nextTurn();
             }
         } else if (chosenCard.getType() == CardType.WILD_DRAW) {
-            currentColor = Color.RED; // Bot sceglie sempre rosso in sim
-            forcedToDrawSim(nextPlayer, 4); // Saltiamo la challenge per velocizzare la simulazione, oppure implementa random
+            // Il bot sceglie il colore usando la sua logica
+            currentColor = ((BotPlayer)player).chooseColor(currentColor);
+
+            // Simula il Challenge tra bot
+            BotPlayer victim = (BotPlayer) nextPlayer;
+            if (victim.wantsToChallenge()) {
+                if (checkHand(player.getHand(), currentColor)) { // Fallo del giocatore
+                    forcedToDrawSim(player, 4);
+                    state.getMatchStats().addMove(victim.getName(), "ha vinto il challenge +4 contro " + player.getName());
+                } else { // Challenge fallito
+                    forcedToDrawSim(victim, 6);
+                    state.getMatchStats().addMove(victim.getName(), "ha fallito il challenge +4 contro " + player.getName());
+                }
+            } else {
+                forcedToDrawSim(victim, 4); // Nessun challenge
+            }
             state.nextTurn();
+
         } else if(chosenCard.getType() == CardType.SKIP) {
             state.nextTurn(); state.nextTurn();
         } else if(chosenCard.getType() == CardType.REVERSE){
             state.invertClock();
         } else if (chosenCard.getType() == CardType.WILD_JOLLY) {
-            currentColor = Color.RED;
+            currentColor = ((BotPlayer)player).chooseColor(currentColor);
         }
 
         // Controllo UNO in Sim (I bot si beccano al 50%)
@@ -787,13 +741,47 @@ public class GameEngine {
         }
     }
 
+    /**
+     * Motore di simulazione Batch: esegue X partite consecutivamente senza aggiornare la GUI,
+     * calcolando solo le statistiche. Gira su un Thread separato.
+     */
+    public void runSimulation(int numSimulations) {
+        new Thread(() -> {
+            long startTime = System.currentTimeMillis();
+
+            for (int i = 0; i < numSimulations; i++) {
+                startGame();
+            }
+
+            simulationDurationMs = System.currentTimeMillis() - startTime;
+
+            // Risveglia la GUI e mostra le statistiche aggregate
+            javafx.application.Platform.runLater(() -> {
+                view.showPostMatchScreen(globalStats, state.getMatchStats());
+            });
+        }).start();
+    }
+
+    // Versioni silenziose per non bloccare/crashare JavaFX
+    private void forcedToDrawSim(Player player, int amountCards) {
+        Stack<Card> penaltyStack = state.getTopCards(amountCards);
+        for(int i = 0; i < amountCards; i++) {
+            Card penaltyCard = penaltyStack.get(i);
+            player.receiveCard(penaltyCard);
+            state.getMatchStats().incrementPointsTo(player, penaltyCard);
+        }
+        state.getMatchStats().incrementPenalties(player);
+        state.getMatchStats().addMove(player.getName(), "ha pescato " + amountCards + " carte di penalità (Simulazione).");
+        resetUnoCondition(player);
+    }
+
     /** when it is possible to change color, the bot chooses a specific color based on its personality
      * @param bot
      * @return chosen color
      */
     private Color botChooseColor(BotPlayer bot){
-            return bot.chooseColor(currentColor);
-        };
+        return bot.chooseColor(currentColor);
+    };
 
     /** bot determines whether it wants to raise a challenge or not based on its personality
      * @param bot
@@ -804,4 +792,3 @@ public class GameEngine {
     }
 
 }
-

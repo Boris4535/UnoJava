@@ -14,8 +14,13 @@ public class MatchSettings implements Serializable {
     public boolean sevenZeroEnabled = false;
     public boolean privacyModeEnabled = false;
 
+    public boolean customScoringEnabled = false;
+
     //VARIABILI SIMULAZIONE
 
     public boolean simulationModeEnabled = false;
     public int numSimulations = 1;
+    public int customNumberValue = 5;
+    public int customActionValue = 10;
+    public int customWildValue = 25;
 }

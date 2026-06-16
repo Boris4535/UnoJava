@@ -20,8 +20,14 @@ public class SetupController {
     @FXML private CheckBox     chkPrivacy;
     @FXML private Spinner<Integer> spinnerPlayers;
 
+    @FXML private HBox boxCustomScores;
+    @FXML private Spinner<Integer> spinNumScore;
+    @FXML private Spinner<Integer> spinActScore;
+    @FXML private Spinner<Integer> spinWildScore;
+
     @FXML private CheckBox chkSimulation;
     @FXML private TextField txtSimCount;
+    @FXML private CheckBox chkCustomScoring;
 
     public static final int DEFAULT_PLAYERS = 2;
 
@@ -72,7 +78,20 @@ public class SetupController {
                 }
             });
         }
+
+        spinNumScore.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 50, 5));
+        spinActScore.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 50, 10));
+        spinWildScore.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, 25));
+
+        // Mostra i campi solo se il toggle è attivo
+        if (chkCustomScoring != null) {
+            chkCustomScoring.selectedProperty().addListener((obs, oldVal, newVal) -> {
+                boxCustomScores.setVisible(newVal);
+                boxCustomScores.setManaged(newVal); // Fa in modo che occupi spazio solo se visibile
+            });
+        }
     }
+
 
     public void buildPlayerRows(int count) {
         playersContainer.getChildren().clear();
@@ -146,6 +165,14 @@ public class SetupController {
     public void startGame() throws IOException {
         MatchSettings settings = new MatchSettings();
         settings.PointsBasedGame = togglePunti.isSelected();
+        settings.customScoringEnabled = chkCustomScoring != null && chkCustomScoring.isSelected();
+
+        settings.customScoringEnabled = chkCustomScoring != null && chkCustomScoring.isSelected();
+        if (settings.customScoringEnabled) {
+            settings.customNumberValue = spinNumScore.getValue();
+            settings.customActionValue = spinActScore.getValue();
+            settings.customWildValue = spinWildScore.getValue();
+        }
 
         if (settings.PointsBasedGame && !txtSoglia.getText().isEmpty()) {
             try {

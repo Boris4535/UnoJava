@@ -32,9 +32,10 @@ public class GameState implements Serializable {
     /** sole constructor, sets up the state of the game ready to function and establishes the players
      * @param nPlayers list of players
      */
-    public GameState(List<Player> nPlayers) {
+    public GameState(List<Player> nPlayers, MatchSettings settings) {
+        this.settings = settings;
         initDrawPile();
-        matchStats = new MatchStats(nPlayers);
+        matchStats = new MatchStats(nPlayers, this.settings);
         players = nPlayers;
     }
 

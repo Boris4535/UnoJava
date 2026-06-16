@@ -75,6 +75,8 @@ public class TavoloController implements GameView {
         btnCallUno.setVisible(true);
     }
 
+
+
     @Override
     public void showPrivacyScreen(Player p) {
         privacyOverlay.setVisible(true);
@@ -165,8 +167,7 @@ public class TavoloController implements GameView {
 
     public void setInitialData(MatchSettings settings) {
         System.out.println("Match started with " + settings.Players.size() + " players");
-        GameState gameState = new GameState(settings.Players);
-        gameState.settings = settings;
+        GameState gameState = new GameState(settings.Players, settings);
         GameMode mode = settings.PointsBasedGame ? new ScoreBasedGame() : new ClassicGame();
 
         this.engine = new GameEngine(gameState, mode, this, settings);
@@ -177,7 +178,7 @@ public class TavoloController implements GameView {
             tableArea.getChildren().clear();
 
             new Thread(() -> {
-                engine.runBatchSimulation();
+                engine.runSimulation(settings.numSimulations);
             }).start();
         } else {
             engine.startGame();

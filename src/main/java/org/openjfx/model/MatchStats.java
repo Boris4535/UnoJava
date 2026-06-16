@@ -25,12 +25,20 @@ public class MatchStats implements Serializable {
     private Map<Player,Integer> penaltiesPerPlayer;
     private Map<Player,Integer> challengesPerPlayer;
     private List<Move> moveHistory = new ArrayList<>();
+    private boolean isCustomScoring = false;
+    private MatchSettings settings;
+
+    public void setCustomScoring(boolean customScoring) {
+        this.isCustomScoring = customScoring;
+    }
 
     /**Constructs a new MatchStats instance,
      * initializing maps to keep track of each player and their points
      * @param players list of players whose records will be created
      */
-    public MatchStats(List<Player> players){
+    public MatchStats(List<Player> players, MatchSettings settings){
+        this.settings = settings;
+        this.isCustomScoring = settings.customScoringEnabled;
         pointsPerPlayer = new HashMap<>();
         penaltiesPerPlayer = new HashMap<>();
         challengesPerPlayer = new HashMap<>();
@@ -41,6 +49,29 @@ public class MatchStats implements Serializable {
             challengesPerPlayer.put(p,0);
         }
 
+    }
+    /** Converts a card's game property into its scoring value.
+     * Currently, special cards (Skip, Reverse, Draw Two) are valued at 20 points, Wild cards
+     * at 50 points, and number cards carry their written value.
+     * @param card to examine
+     * @return value of the given card
+     */
+    public int extractPointsFromCard(Card card){  //Refactored funzione di lucia
+        int score = 0;
+        if (isCustomScoring) {
+            switch (card.getType()) {
+                case SKIP, REVERSE, DRAW_TWO -> score += 10;
+                case WILD_DRAW, WILD_JOLLY -> score += 25;
+                default -> score += settings.customNumberValue; // Regola custom: i numeri valgono 5
+            }
+        } else {
+            switch (card.getType()) {
+                case SKIP, REVERSE, DRAW_TWO -> score += 20;
+                case WILD_DRAW, WILD_JOLLY -> score += 50;
+                default -> score += card.getValue();
+            }
+        }
+        return score;
     }
 
 
@@ -67,26 +98,8 @@ public class MatchStats implements Serializable {
         this.numNumOfTurns++;
     }
 
-    /** Converts a card's game property into its scoring value.
-     * Currently, special cards (Skip, Reverse, Draw Two) are valued at 20 points, Wild cards
-     * at 50 points, and number cards carry their written value.
-     * @param card to examine
-     * @return value of the given card
-     */
-    public int extractPointsFromCard(Card card){
-        int score = 0;
-        switch (card.getType()) {
-            case SKIP, REVERSE, DRAW_TWO
-                    -> score += 20;
-            case WILD_DRAW, WILD_JOLLY
-                    -> score += 50;
-            default -> // number card
-                    score += card.getValue();
-        }
-        return score;
-    }
 
-    /** Calculates the sum of all points accumulated by all players combined.
+        /** Calculates the sum of all points accumulated by all players combined.
      * @return number of accumulated points
      */
     public int getPointsFromAllPlayers(){

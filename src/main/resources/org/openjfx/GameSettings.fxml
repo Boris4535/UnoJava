@@ -45,6 +45,18 @@
                                 <CheckBox fx:id="chkNumberRush" mnemonicParsing="false" text="Number Rush" />
                                 <CheckBox fx:id="chkSevenZero" mnemonicParsing="false" text="Seven-Zero Rule" />
                                 <CheckBox fx:id="chkPrivacy" mnemonicParsing="false" text="Privacy Mode" />
+                                <CheckBox fx:id="chkCustomScoring" mnemonicParsing="false" text="Custom Scoring" />
+
+                                <HBox fx:id="boxCustomScores" spacing="10.0" visible="false" managed="false">
+                                    <children>
+                                        <Label text="Numeri:" />
+                                        <Spinner fx:id="spinNumScore" prefWidth="60.0" />
+                                        <Label text="Azioni:" />
+                                        <Spinner fx:id="spinActScore" prefWidth="60.0" />
+                                        <Label text="Jolly:" />
+                                        <Spinner fx:id="spinWildScore" prefWidth="60.0" />
+                                    </children>
+                                </HBox>
 
                             </children>
                         </VBox>
