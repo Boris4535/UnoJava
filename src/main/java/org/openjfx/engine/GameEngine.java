@@ -240,8 +240,11 @@ public class GameEngine {
             state.getMatchStats().decrementPointsTo(human,chosenCard);
 
             executeMove(human, chosenCard);
-        } else {
+        } else if(!hasDrawnThisTurn){
             view.showMessage("Mossa non valida!");
+        } else if(hasDrawnThisTurn == true){
+            // Hai già preso dal mazzo, salta turno
+            endTurn();
         }
     }
 
