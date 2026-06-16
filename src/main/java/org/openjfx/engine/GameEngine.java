@@ -390,18 +390,6 @@ public class GameEngine {
         }
 
         // Controllo UNO dimenticato
-        if (player.getHandSize() == 1 && !player.getHasCalledUno()) {
-            boolean busted = false;
-            for (Player p : state.players) {
-                if (p instanceof BotPlayer && Math.random() > 0.5) {
-                    state.getMatchStats().addMove(p.getName(), "ha sgamato " + player.getName() + " che non ha detto UNO!");
-                    view.showMessage(p.getName() + " ha contestato l'UNO di " + player.getName() + "!");
-                    forcedToDraw(player, 2);
-                    busted = true;
-                    break;
-                }
-            }
-        }
         if (player instanceof BotPlayer && player.getHandSize() == 1) {
             if (Math.random() > 0.2) {
                 player.setHasCalledUno(true);
@@ -410,17 +398,27 @@ public class GameEngine {
             }
         }
 
+        // Controllo sulle penalità (chi si dimentica l'UNO)
+        if (player.getHandSize() == 1 && !player.getHasCalledUno()) {
+            if (player instanceof HumanPlayer && !settings.simulationModeEnabled) {
+                // Se è umano, diamo 2 secondi di tempo per cliccare l'interfaccia LIVE QTE LMAO.
+                javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(2));
+                pause.setOnFinished(e -> {
+                    checkUnoPenalties(player);
+                    endTurn(); // Prosegue il turno alla fine dell'attesa
+                });
+                pause.play();
+                return; // Fermiamo l'esecuzione del metodo qui
+            } else {
+                // Per i bot (o simulazioni), il controllo è immediato
+                checkUnoPenalties(player);
+            }
+        }
+
+        // Controllo per tutti gli altri casi
         for (Player p : state.players) {
-            if (p.getHandSize() == 1 && !p.getHasCalledUno()) {
-                for (Player checker : state.players) {
-                    if (checker instanceof BotPlayer && checker != p && Math.random() > 0.5) {
-                        state.getMatchStats().addMove(checker.getName(), "ha contestato la mancata dichiarazione di " + p.getName());
-                        view.showMessage(checker.getName() + " ha contestato l'UNO di " + p.getName() + "!");
-                        forcedToDraw(p, 2);
-                        p.setHasCalledUno(true);
-                        break;
-                    }
-                }
+            if (p != player) {
+                checkUnoPenalties(p);
             }
         }
 
@@ -684,6 +682,26 @@ public class GameEngine {
         state.getMatchStats().incrementPenalties(player);
         state.getMatchStats().addMove(player.getName(), "ha pescato " + amountCards + " carte di penalità.");
         resetUnoCondition(player);
+    }
+
+    /**
+     * Verifica se un giocatore è rimasto con una sola carta senza dichiarare UNO.
+     * In tal caso, i bot hanno una probabilità del 50% di accorgersene e contestarlo,
+     * forzando il giocatore a pescare 2 carte.
+     * * @param player Il giocatore da controllare.
+     */
+    private void checkUnoPenalties(Player player) {
+        if (player.getHandSize() == 1 && !player.getHasCalledUno()) {
+            for (Player p : state.players) {
+                if (p instanceof BotPlayer && p != player && Math.random() > 0.5) {
+                    state.getMatchStats().addMove(p.getName(), "ha contestato la mancata dichiarazione di " + player.getName());
+                    view.showMessage(p.getName() + " ha contestato l'UNO di " + player.getName() + "!");
+                    forcedToDraw(player, 2);
+                    player.setHasCalledUno(true); // Evita loop infiniti di contestazioni
+                    break;
+                }
+            }
+        }
     }
 
     //Controlla se ci sono carte giocabili

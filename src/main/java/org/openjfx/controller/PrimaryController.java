@@ -24,6 +24,9 @@ public class PrimaryController {
         showLoadMenu();
     }
 
+    /**
+     *
+     */
     private void showLoadMenu() {
         Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle("Carica Partita");
