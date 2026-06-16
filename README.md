@@ -12,8 +12,10 @@ fully functional UNO Game that is easy to play and follows all the official rule
     * **Classic Game:** the standard UNO game where a single round determines the winner. The game ends as soon as a player successfully discards all cards from their hand.
     * **Score-Based Game:** A multi-round competitive mode where the overall match continues until a player reaches a specific target score (configured to 500 points by default).
 * **Simulation Mode**: lets bots play against themselves while you witness the match.
-* **Advanced Save System**: creates multiple save files, that you can choose to load and play in
+* **Advanced Save System**: creates multiple save files, that you can choose to load and play in.
 * **Detailed Statistics:** tracks match stats (like rounds, turns, challenges, and penalties) and shows global game averages across all matches played.
+You can find them at the end of the match.
+* **3 bots**: each with different personality traits, such as **stupid**, **clever** and **cheeky**. Which increases or decreases the game difficulty.
 
 ***
 
@@ -43,15 +45,26 @@ Before playing, make sure you have installed in your machibe:
 ### 1. Normal Game
 * Launch the game by clicking on "Run".
 * Select **"Nuova partita"** (or load one from "Carica Partita" to resume a match) from the menu.
-* Choose the **game mode** (single match or score based), tick (or untick) whichever **alternative rule** you prefer and start playing!
+* Choose the **game mode** (single match or score based), how **many players** you want to play against (and their nature, human or bot?), tick (or untick) whichever **alternative rule** you prefer and start playing!
+
+![Demo preview](https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExaWdkemx5dWY5OGlsNWVoeXBydmh3aTY4Z210OTc2cm9oaTNhM2FmMCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/OXSTh4XUiaKdJYQ45r/giphy.gif)
+
 * **Careful!** If a player has played a **+4 wild card** against you, you can fight them in a **challenge** to find out whether they illegally played the magic card against you. 
+
+![Demo preview](https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExd3p0NXY4bnlmdmpsZmgwbDk3aXI2em95ajR3ejJrdGJ4bzQybG9veCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/tCmybeNp45TyKw17Re/giphy.gif)
+
 * **Don't forget** to call Uno by clicking on **"Chiama UNO"** or someone might make you notice and pay for it.
 * To **exit the match** just press "**esc**" on your keyboard. You can choose save the match to 
 resume the game later, or not!
+* To view the **statistics** play the match until the **end**.
+
+![Demo preview](https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExMGV2c2x3amF2NTNxYWNha3VsNXV4Z3U3OXp6dXRkNDc4Ym91NjcwciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/B76jtaQle0sulgXlJw/giphy.gif)
+
 
 ### 2. Simulation Mode
-* From the main menu, select **"Simulation Mode"**.
-* Watch the AI bots play against each other automatically to test the game logic.
+* From the second menu, tick the **"Simulation Mode"** box.
+* Watch the bots play against each other automatically.
+* At the end you will see the **statistics**.
 
 ### 3. Save and Load a Game
 * **To Save:** Press "esc" on your keyboard,and choose to save the match.
