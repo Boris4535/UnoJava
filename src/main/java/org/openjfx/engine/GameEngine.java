@@ -349,7 +349,7 @@ public class GameEngine {
             if (player instanceof HumanPlayer) {
                 chooseColor(view.chooseWildColor());
             } else {
-                chooseColor(botChooseColor(((BotPlayer) nextPlayer))); // Stupid e clever, scelgono a caso, cheeky sceglie uno diverso da quello attuale
+                chooseColor(botChooseColor((BotPlayer) player)); // Stupid e clever, scelgono a caso, cheeky sceglie uno diverso da quello attuale
             }
 
             // GESTIONE STACKING PER IL +4
