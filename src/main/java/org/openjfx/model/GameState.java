@@ -16,7 +16,6 @@ import static org.openjfx.model.CardType.*;
  * @author Lucia Annicchiarico
  * @author Andriy Chyzhevskyy
  */
-public class GameState {
 
 public class GameState implements Serializable {
     public Stack<Card> drawPile = new Stack<>();
@@ -27,7 +26,6 @@ public class GameState implements Serializable {
     public boolean clockwisePhase = true;
     public int pendingDrawPenalty = 0;
     public CardType activeStackType = null;
-    MatchStats matchStats; // tiene le statistiche di ogni singola partita
     public MatchSettings settings;
     private MatchStats matchStats; // tiene le statistiche di ogni singola partita
 
@@ -150,7 +148,6 @@ public class GameState implements Serializable {
 
     /** shuffles the discardPile so it can be reused as draw pile
      */
-    public void reshuffleDiscardIntoDraw(){ drawPile = shuffle(discardPile);}
     public void setMatchStats(MatchStats matchStats) {
         this.matchStats = matchStats;
     }

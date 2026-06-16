@@ -8,7 +8,6 @@ public abstract class Player implements Serializable {
  * Defines the player class, complete with name, stats and hand
  * @author leon445
  */
-public abstract class Player {
     public String name;
     private List<Card> hand = new LinkedList<>();
     private boolean hasCalledUno = false;

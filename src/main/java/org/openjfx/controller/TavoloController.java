@@ -156,7 +156,7 @@ public class TavoloController implements GameView {
     @FXML
     public void onUnoButtonClicked() {
         if (engine != null) {
-            engine.humanCallUno();
+            engine.handleUnoButtonClick();
 
             btnCallUno.setVisible(false);
         }
@@ -165,10 +165,9 @@ public class TavoloController implements GameView {
 
     public void setInitialData(MatchSettings settings) {
         System.out.println("Match started with " + settings.Players.size() + " players");
-        GameState gameState = new GameState();
-        gameState.players = settings.Players;
+        GameState gameState = new GameState(settings.Players);
         gameState.settings = settings;
-        GameMode mode = settings.PointsBasedGame ? new ScoreBasedGame(settings.WinningScore) : new ClassicGame();
+        GameMode mode = settings.PointsBasedGame ? new ScoreBasedGame() : new ClassicGame();
 
         this.engine = new GameEngine(gameState, mode, this, settings);
 
@@ -279,7 +278,7 @@ public class TavoloController implements GameView {
             savedSettings = new MatchSettings();
         }
 
-        GameMode mode = savedSettings.PointsBasedGame ? new ScoreBasedGame(savedSettings.WinningScore) : new ClassicGame();
+        GameMode mode = savedSettings.PointsBasedGame ? new ScoreBasedGame() : new ClassicGame();
 
         this.engine = new GameEngine(loadedState, mode, this, savedSettings);
 

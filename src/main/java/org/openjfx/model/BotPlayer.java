@@ -9,7 +9,6 @@ public class BotPlayer extends Player implements Serializable {
  * Extends Player and has a personality attribute and methods that allow bots to choose a card
  * @author leon445
  */
-public class BotPlayer extends Player {
 
     private BotType personality;
     private Random random = new Random();

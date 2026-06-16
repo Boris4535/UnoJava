@@ -498,8 +498,6 @@ public class GameEngine {
     /** displays the outcome (success or failure) of a UNO declaration by a human
      * in the user interface
      */
-    public void humanCallUno() {
-        Player human = state.getCurrentPlayer();
 
     public void handleUnoButtonClick() {
         Player currentPlayer = state.getCurrentPlayer();
