@@ -89,6 +89,7 @@ public class TavoloController implements GameView {
         privacyOverlay.setVisible(false);
         if (engine != null) {
             updatePlayerHand(engine.getState().getCurrentPlayer().getHand());
+            updateOpponentsStatus(engine.getState().players, engine.getState().getCurrentPlayer());
             showMessage("È il tuo turno, " + engine.getState().getCurrentPlayer().getName());
         }
     }
@@ -383,6 +384,30 @@ public class TavoloController implements GameView {
         dialog.getDialogPane().getStylesheets().add(getClass().getResource("/org/openjfx/Styles.css").toExternalForm());
 
         dialog.showAndWait();
+    }
+
+    @Override
+    public void updateOpponentsStatus(List<Player> allPlayers, Player currentPlayer) {
+        if (engine != null && engine.getState().settings.simulationModeEnabled) return;
+
+        List<Player> opponents = new java.util.ArrayList<>(allPlayers);
+        opponents.remove(currentPlayer);
+
+        if (faceTop != null) faceTop.setText("");
+        if (faceLeft != null) faceLeft.setText("");
+        if (faceRight != null) faceRight.setText("");
+
+        for (int i = 0; i < opponents.size(); i++) {
+            Player opp = opponents.get(i);
+
+            String cardBacks = "█ ".repeat(opp.getHandSize());
+            String info = opp.getName() + " - " + opp.getHandSize() + " carte\n" + cardBacks;
+
+            // Assegna il testo in base al numero di avversario
+            if (i == 0 && faceTop != null) faceTop.setText(info);
+            else if (i == 1 && faceLeft != null) faceLeft.setText(info);
+            else if (i == 2 && faceRight != null) faceRight.setText(info);
+        }
     }
 
 

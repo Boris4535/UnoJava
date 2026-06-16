@@ -136,6 +136,16 @@ public class GameEngine {
         hasDrawnThisTurn = false;
         Player currentPlayer = state.getCurrentPlayer();
 
+        //Debug extra
+
+        System.out.println("\n--- INIZIO TURNO ---");
+        System.out.println("Tavolo (Cima): " + currentCard.getColor() + " " + currentCard.getType() + " | Colore Corrente: " + currentColor);
+        System.out.println("Tocca a: " + currentPlayer.getName());
+        for (Player p : state.players) {
+            System.out.println(" - " + p.getName() + " ha " + p.getHandSize() + " carte");
+        }
+        System.out.println("--------------------\n");
+
         //Controllo se c'è lo stacking all'inizio
 
         view.onTurnChanged(currentPlayer);
@@ -325,8 +335,7 @@ public class GameEngine {
                 state.pendingDrawPenalty += 2;
                 state.activeStackType = CardType.DRAW_TWO;
                 // Il giocatore successivo NON salta subito, toccherà a lui gestire il problema
-                state.nextTurn();
-                startTurn();
+                endTurn();
                 return;
             } else {
                 // Logica classica UNO
@@ -345,8 +354,7 @@ public class GameEngine {
             if (settings.stackingEnabled) {
                 state.pendingDrawPenalty += 4;
                 state.activeStackType = CardType.WILD_DRAW;
-                state.nextTurn();
-                startTurn();
+                endTurn();
                 return;
             } else {
                 // Logica normale con Challenge se lo stacking è disabilitato
@@ -365,7 +373,6 @@ public class GameEngine {
             }
         } else if (chosenCard.getType() == CardType.SKIP) {
             state.nextTurn();
-            state.nextTurn(); //Real skip qui
         } else if (chosenCard.getType() == CardType.REVERSE) {
             state.invertClock();
 
@@ -374,7 +381,7 @@ public class GameEngine {
             if (player instanceof HumanPlayer) {
                 chooseColor(view.chooseWildColor());
             } else {
-                chooseColor(Color.RED); // Bot sceglie rosso <--- chiamo la shit del bot dopo qui
+                chooseColor(botChooseColor((BotPlayer) player));
             }
         }
 
@@ -498,6 +505,8 @@ public class GameEngine {
             }
 
         }
+
+        state.nextTurn();
         // Passa al prossimo e riavvia il loop
         if (!settings.simulationModeEnabled) {
             startTurn();

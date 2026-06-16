@@ -317,6 +317,19 @@
     -fx-effect: dropshadow(two-pass-box, #ffff00, 22, 0.9, 0, 0);
 }
 
+/* Stile per le carte degli avversari ai bordi del tavolo */
+.opponent-label {
+    -fx-text-fill: #39ff14; /* Verde neon */
+    -fx-font-family: "Courier New", monospace;
+    -fx-font-weight: 900;
+    -fx-font-size: 16px;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-effect: dropshadow(one-pass-box, #39ff14, 6, 0.8, 0, 0);
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
 #btnCallUno:pressed {
     -fx-scale-x: 1.2;
     -fx-scale-y: 0.8;

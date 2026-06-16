@@ -16,6 +16,7 @@ public interface GameView {
     void showPrivacyScreen(Player p);
     Player choosePlayerToSwapHands(List<Player> players, Player currentPlayer);
     void showPostMatchScreen(GameStats globalStats, org.openjfx.model.MatchStats matchStats);
+    void updateOpponentsStatus(List<Player> allPlayers, Player currentPlayer);
 
     org.openjfx.model.Color chooseWildColor();
 }

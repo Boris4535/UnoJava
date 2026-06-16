@@ -6,6 +6,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.Group?>
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
             prefHeight="600.0" prefWidth="800.0"
             stylesheets="@Styles.css"
@@ -13,18 +14,22 @@
             fx:controller="org.openjfx.controller.TavoloController">
 
    <top>
-      <VBox styleClass="weird-band" alignment="CENTER" prefHeight="30.0">
-         <Label styleClass="hieroglyphs" text="███████ ⊗ ███████" />
+      <VBox styleClass="weird-band" alignment="CENTER" prefHeight="50.0">
+         <Label fx:id="faceTop" styleClass="opponent-label" text="" />
       </VBox>
    </top>
    <left>
-      <VBox styleClass="weird-band" alignment="CENTER" prefWidth="40.0">
-         <Label styleClass="hieroglyphs" text="☗" wrapText="true" rotate="90" />
+      <VBox styleClass="weird-band" alignment="CENTER" prefWidth="50.0">
+         <Group>
+            <Label fx:id="faceLeft" styleClass="opponent-label" rotate="-90" />
+         </Group>
       </VBox>
    </left>
    <right>
-      <VBox styleClass="weird-band" alignment="CENTER" prefWidth="40.0">
-         <Label styleClass="hieroglyphs" text="☗" wrapText="true" rotate="-90" />
+      <VBox styleClass="weird-band" alignment="CENTER" prefWidth="50.0">
+         <Group>
+            <Label fx:id="faceRight" styleClass="opponent-label" rotate="90" />
+         </Group>
       </VBox>
    </right>
 
