@@ -168,7 +168,7 @@ public class TavoloController implements GameView {
         if (engine != null) {
             engine.handleUnoButtonClick();
 
-            btnCallUno.setVisible(false);
+           //DEPRECATED, IDK WHY IT REAPPEARED----->>>>>???? btnCallUno.setVisible(false);
         }
     }
 
