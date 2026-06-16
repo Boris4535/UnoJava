@@ -104,11 +104,11 @@ public class GameEngine {
         currentCard = state.getTopCards(1).pop(); // Prima carta da mettere a terra
         state.discardPile.add(currentCard);    // Aggiungiamo carta a terra
         currentColor = currentCard.getColor();
+        if (!settings.simulationModeEnabled) {
+            view.updateTopCard(currentCard);
+            view.showMessage("CE LA FACCIAMOOOOO");
+            startTurn(); }
 
-        view.updateTopCard(currentCard);
-        view.showMessage("CE LA FACCIAMOOOOO");
-
-        startTurn();
 
 
     }
@@ -499,8 +499,9 @@ public class GameEngine {
 
         }
         // Passa al prossimo e riavvia il loop
-        state.nextTurn();
-        startTurn();
+        if (!settings.simulationModeEnabled) {
+            startTurn();
+        }
     }
 
     /** Saves the final match statistics for all players.
@@ -750,14 +751,24 @@ public class GameEngine {
     public void runSimulation(int numSimulations) {
         new Thread(() -> {
             long startTime = System.currentTimeMillis();
-
             for (int i = 0; i < numSimulations; i++) {
                 startGame();
-            }
 
+                while (settings.simulationModeEnabled) {
+                    startTurn();
+
+                    // Controlliamo se la partita è effettivamente finita (un giocatore ha vinto)
+                    if (state.getCurrentPlayer().getHandSize() == 0 && gameMode.isMatchOver(state)) {
+                        break; // Esce dal while, salva i dati e passa alla prossima simulazione
+                    }
+                }
+            }
             simulationDurationMs = System.currentTimeMillis() - startTime;
 
+            // Si ricollega alla UI di JavaFX in modo pulito
+            javafx.application.Platform.runLater(() -> {
                 view.showPostMatchScreen(globalStats, state.getMatchStats());
+            });
         }).start();
     }
 

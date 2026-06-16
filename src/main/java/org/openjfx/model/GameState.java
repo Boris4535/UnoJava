@@ -130,7 +130,8 @@ public class GameState implements Serializable {
      * @throws IndexOutOfBoundsException if nCards is greater than the size of the deck
      */
     public Stack<Card> getTopCards(int nCards){
-        if (nCards > drawPile.size()) throw new IndexOutOfBoundsException();
+        // DEPRECATED:if (nCards > drawPile.size()) throw new IndexOutOfBoundsException();
+        //il for successivo gestisce tutto perfettamente, questo metodo causava crash continui in simulazione
 
         Stack<Card> temp = new Stack<Card>();
         for(int i = 0; i < nCards;i++){//FIX: In caso il mazzo sia vuoto

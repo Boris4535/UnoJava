@@ -194,6 +194,7 @@ public class TavoloController implements GameView {
 
     @Override
     public void updateTopCard(Card topCard) {
+        if (engine != null && engine.getState().settings.simulationModeEnabled) return;
         tableArea.getChildren().removeIf(node -> node.getTranslateX() > 0);
         StackPane cardNode = createCardNode(topCard);
         cardNode.setTranslateX(50);
@@ -202,6 +203,7 @@ public class TavoloController implements GameView {
 
     @Override
     public void updatePlayerHand(List<Card> hand) {
+        if (engine != null && engine.getState().settings.simulationModeEnabled) return;
         playerHandBox.getChildren().clear();
         for (Card card : hand) {
             StackPane cardNode = createCardNode(card);
@@ -221,6 +223,7 @@ public class TavoloController implements GameView {
 //Ho fatto un casino lol, riordinato nu poc
     @Override
     public void showMessage(String message) {
+        if (engine != null && engine.getState().settings.simulationModeEnabled) return;
         if (lblMessage != null) {
             lblMessage.setText(message);
         }
@@ -228,6 +231,7 @@ public class TavoloController implements GameView {
 
     @Override
     public void onTurnChanged(Player currentPlayer) {
+        if (engine != null && engine.getState().settings.simulationModeEnabled) return;
         if (lblCurrentPlayer != null) {
             lblCurrentPlayer.setText("Current turn: " + currentPlayer.getName());
         }
