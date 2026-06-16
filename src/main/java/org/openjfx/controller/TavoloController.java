@@ -156,21 +156,9 @@ public class TavoloController implements GameView {
     @FXML
     public void onUnoButtonClicked() {
         if (engine != null) {
-            engine.handleUnoButtonClick();
+            engine.humanCallUno();
 
-        }
-    }
-
-    @FXML
-    public void onSaveButtonClicked() {
-        if (engine != null) {
-            // Salviamo lo stato attuale usando il SaveManager
-            boolean success = org.openjfx.utils.SaveManager.saveGame(engine.getState(), "Slot1");
-            if (success) {
-                showMessage("Partita salvata in Slot1.sav!");
-            } else {
-                showMessage("Errore nel salvataggio!");
-            }
+            btnCallUno.setVisible(false);
         }
     }
 
