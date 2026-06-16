@@ -6,7 +6,7 @@ import java.util.List;
 
 public class MatchSettings implements Serializable {
     public boolean PointsBasedGame = false;
-    public int WinningScore = 6700000 ;
+    public int WinningScore = 500 ;
     public List<Player> Players = new ArrayList<>();
 
     public boolean stackingEnabled = false;

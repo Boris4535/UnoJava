@@ -107,52 +107,59 @@ public class TavoloController implements GameView {
 
     @Override
     public void showPostMatchScreen(GameStats globalStats, org.openjfx.model.MatchStats matchStats) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Risultati Finali");
+        // La vista intercetta la chiamata dal background thread e la sposta sul thread di JavaFX
+        javafx.application.Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Risultati Finali");
+            StringBuilder sb = new StringBuilder();
 
-        StringBuilder sb = new StringBuilder();
-        if (engine.getState().settings.simulationModeEnabled) {
-            alert.setHeaderText("Simulazione Batch Conclusa!");
-            sb.append("STATISTICHE AGGREGATE:\n");
-            sb.append("Durata Simulazione: ").append(engine.simulationDurationMs).append(" ms\n");
-            sb.append("Partite simulate: ").append(globalStats.getNumOfPlayedMatches()).append("\n");
-            sb.append("Media Round per partita: ").append(String.format("%.2f", globalStats.getAvgNumOfRounds())).append("\n");
-            sb.append("Media Turni per round: ").append(String.format("%.2f", globalStats.getAvgNumOfTurns())).append("\n");
-            sb.append("Totale Penalità applicate: ").append(globalStats.getNumOfPenalties()).append("\n\n");
-
-            sb.append("VITTORIE PER GIOCATORE/BOT:\n");
-            for (Player p : engine.getState().players) {
-                sb.append("- ").append(p.getName()).append(": ")
-                        .append(p.getStats().getTotalWonMatches()).append(" vittorie (")
-                        .append(p.getStats().getOverallScore()).append(" pt totali)\n");
-            }
-        } else {
-            alert.setHeaderText("La partita è conclusa!");
-            sb.append("Vincitore: ").append(engine.getState().getCurrentPlayer().getName()).append("\n\n");
-            sb.append("STORICO MOSSE (Ultimo Round):\n");
-            for (org.openjfx.model.Move m : matchStats.getMoveHistory()) {
-                sb.append("- ").append(m.toString()).append("\n");
-            }
-        }
-
-        javafx.scene.control.TextArea area = new javafx.scene.control.TextArea(sb.toString());
-        area.setEditable(false);
-        area.setWrapText(true);
-        alert.getDialogPane().setContent(area);
-
-        ButtonType btnExport = new ButtonType("Esporta in JSON");
-        ButtonType btnMenu = new ButtonType("Torna al Menu");
-        alert.getButtonTypes().setAll(btnExport, btnMenu);
-
-        Optional<ButtonType> res = alert.showAndWait();
-        if (res.isPresent() && res.get() == btnExport) {
-            if (org.openjfx.utils.ExportManager.exportStatsToJson(globalStats)) {
-                showMessage("Esportato JSON con successo nella cartella del progetto!");
+            if (engine.getState().settings.simulationModeEnabled) {
+                alert.setHeaderText("Simulazione Batch Conclusa!");
+                sb.append("STATISTICHE AGGREGATE:\n");
+                sb.append("Durata Simulazione: ").append(engine.simulationDurationMs).append(" ms\n");
+                sb.append("Partite simulate: ").append(globalStats.getNumOfPlayedMatches()).append("\n");
+                sb.append("Media Round per partita: ").append(String.format("%.2f", globalStats.getAvgNumOfRounds())).append("\n");
+                sb.append("Media Turni per round: ").append(String.format("%.2f", globalStats.getAvgNumOfTurns())).append("\n");
+                sb.append("Totale Penalità applicate: ").append(globalStats.getNumOfPenalties()).append("\n\n");
+                sb.append("VITTORIE PER GIOCATORE/BOT:\n");
+                for (Player p : engine.getState().players) {
+                    sb.append("- ").append(p.getName()).append(": ")
+                            .append(p.getStats().getTotalWonMatches()).append(" vittorie (")
+                            .append(p.getStats().getOverallScore()).append(" pt totali)\n");
+                }
             } else {
-                showMessage("Errore durante l'esportazione JSON.");
+                alert.setHeaderText("La partita è conclusa!");
+                sb.append("Vincitore: ").append(engine.getState().getCurrentPlayer().getName()).append("\n\n");
+                sb.append("STORICO MOSSE (Ultimo Round):\n");
+                for (org.openjfx.model.Move m : matchStats.getMoveHistory()) {
+                    sb.append("- ").append(m.toString()).append("\n");
+                }
             }
-        }
-        try { org.openjfx.App.setRoot("Primary"); } catch (Exception e) { e.printStackTrace(); }
+
+            javafx.scene.control.TextArea area = new javafx.scene.control.TextArea(sb.toString());
+            area.setEditable(false);
+            area.setWrapText(true);
+            alert.getDialogPane().setContent(area);
+
+            ButtonType btnExport = new ButtonType("Esporta in JSON");
+            ButtonType btnMenu = new ButtonType("Torna al Menu");
+            alert.getButtonTypes().setAll(btnExport, btnMenu);
+
+            Optional<ButtonType> res = alert.showAndWait();
+            if (res.isPresent() && res.get() == btnExport) {
+                if (org.openjfx.utils.ExportManager.exportStatsToJson(globalStats)) {
+                    showMessage("Esportato JSON con successo nella cartella del progetto!");
+                } else {
+                    showMessage("Errore durante l'esportazione JSON.");
+                }
+            }
+
+            try {
+                org.openjfx.App.setRoot("Primary");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     @FXML

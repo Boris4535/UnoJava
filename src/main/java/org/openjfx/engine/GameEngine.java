@@ -420,7 +420,7 @@ public class GameEngine {
      *  It checks if the claim is legitimate.
      * @param player declarer
      */
-    public void callUno(Player player){
+    /*public void callUno(Player player){
         if (canCallUno(player)) {
             // se il giocatore può chiamare l'uno (quindi se ha una carta in mano)
             player.setHasCalledUno(true);
@@ -429,7 +429,8 @@ public class GameEngine {
             // giocatore successivo nel turno successivo può contesta
         }else
             System.out.println("Cazzo fai");
-    }
+    }*/
+    //^^^ Has deprecated, logic moved into handleUnoButtonClick()
 
     /** checks if a player is eligible to declare UNO.
      * @param player declarer
@@ -453,7 +454,7 @@ public class GameEngine {
      *  If the claim is correct, the challenged is forced to draw 2 cards.
      * @param challenged accused player
      */
-    public void disputeUnoCall(Player challenged){
+    /*public void disputeUnoCall(Player challenged){
         if (challenged.hasUno() && challenged.getHasCalledUno())
             System.out.println(challenged + " ha chiamato correttamente uno");
             // SLAVA: view per mostrare che aveva torto il giocatore chiamante
@@ -463,7 +464,8 @@ public class GameEngine {
         }
         // SLAVA: view puniscilo!!!
 
-    }
+    }*/
+    //^^^^ HAS DEPRECATED, moved into handleUnoButtonClick()
 
     /** checks if the match is over (according to whether it's a classic match or scoreBased).
      *  If one player has zero cards in their hand, there are two scenarios:
@@ -755,10 +757,7 @@ public class GameEngine {
 
             simulationDurationMs = System.currentTimeMillis() - startTime;
 
-            // Risveglia la GUI e mostra le statistiche aggregate
-            javafx.application.Platform.runLater(() -> {
                 view.showPostMatchScreen(globalStats, state.getMatchStats());
-            });
         }).start();
     }
 
